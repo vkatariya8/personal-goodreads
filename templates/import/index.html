@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}Import Books - My Personal Library{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <h1 class="text-4xl font-serif font-bold text-primary mb-8">Import from Goodreads</h1>
+
+    <div class="bg-white rounded-lg shadow-md p-8">
+        <h2 class="text-2xl font-semibold mb-4">How to Import</h2>
+
+        <ol class="list-decimal list-inside space-y-3 mb-8 text-gray-700">
+            <li>Go to <a href="https://www.goodreads.com/review/import" target="_blank" class="text-primary hover:underline">Goodreads Export page</a></li>
+            <li>Click "Export Library" to download your CSV file</li>
+            <li>Upload the CSV file using the form below</li>
+            <li>Wait for the import to complete</li>
+        </ol>
+
+        <div class="border-2 border-dashed border-gray-300 rounded-lg p-12 text-center">
+            <p class="text-xl text-gray-500 mb-4">Import functionality coming soon!</p>
+            <p class="text-sm text-gray-500">
+                In the meantime, you can manually add books or wait for the import feature to be implemented.
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}

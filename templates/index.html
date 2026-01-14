@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - My Personal Library{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto">
+    <h1 class="text-4xl font-serif font-bold text-primary mb-8">Welcome to Your Library</h1>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h3 class="text-lg font-semibold text-gray-600 mb-2">Total Books</h3>
+            <p class="text-4xl font-bold text-primary">{{ stats.total_books }}</p>
+        </div>
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h3 class="text-lg font-semibold text-gray-600 mb-2">Read This Year</h3>
+            <p class="text-4xl font-bold text-accent">{{ stats.books_read_this_year }}</p>
+        </div>
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h3 class="text-lg font-semibold text-gray-600 mb-2">Currently Reading</h3>
+            <p class="text-4xl font-bold text-secondary">{{ stats.currently_reading|length }}</p>
+        </div>
+    </div>
+
+    {% if stats.currently_reading %}
+    <div class="mb-12">
+        <h2 class="text-2xl font-serif font-bold text-primary mb-6">Currently Reading</h2>
+        <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+            {% for book in stats.currently_reading %}
+            <a href="{{ url_for('books.detail', book_id=book.id) }}" class="group">
+                <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition">
+                    <img src="{{ book.cover_url }}" alt="{{ book.title }}"
+                         class="w-full h-64 object-cover group-hover:scale-105 transition">
+                    <div class="p-3">
+                        <h3 class="font-semibold text-sm truncate">{{ book.title }}</h3>
+                        <p class="text-xs text-gray-600 truncate">{{ book.display_author }}</p>
+                    </div>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    {% if stats.recently_added %}
+    <div class="mb-12">
+        <h2 class="text-2xl font-serif font-bold text-primary mb-6">Recently Added</h2>
+        <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+            {% for book in stats.recently_added[:10] %}
+            <a href="{{ url_for('books.detail', book_id=book.id) }}" class="group">
+                <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition">
+                    <img src="{{ book.cover_url }}" alt="{{ book.title }}"
+                         class="w-full h-64 object-cover group-hover:scale-105 transition">
+                    <div class="p-3">
+                        <h3 class="font-semibold text-sm truncate">{{ book.title }}</h3>
+                        <p class="text-xs text-gray-600 truncate">{{ book.display_author }}</p>
+                        {% if book.rating %}
+                        <div class="star-rating text-xs mt-1">
+                            {% for i in range(book.rating) %}★{% endfor %}{% for i in range(5 - book.rating) %}☆{% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    {% if not stats.total_books %}
+    <div class="text-center py-16">
+        <p class="text-xl text-gray-600 mb-4">Your library is empty</p>
+        <a href="{{ url_for('import.index') }}" class="bg-primary text-white px-6 py-3 rounded-lg hover:bg-opacity-90 transition inline-block">
+            Import from Goodreads
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}My Personal Library{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#8B4513',
+                        secondary: '#D4A574',
+                        accent: '#E67E22',
+                    },
+                    fontFamily: {
+                        'serif': ['Playfair Display', 'serif'],
+                        'sans': ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .star-rating {
+            color: #F59E0B;
+        }
+    </style>
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="bg-amber-50 font-sans">
+    <nav class="bg-primary text-white shadow-lg">
+        <div class="container mx-auto px-4">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center space-x-8">
+                    <a href="{{ url_for('main.index') }}" class="font-serif text-2xl font-bold hover:text-secondary transition">
+                        📚 My Library
+                    </a>
+                    <div class="hidden md:flex space-x-4">
+                        <a href="{{ url_for('books.library') }}" class="hover:text-secondary transition px-3 py-2 rounded">Library</a>
+                        <a href="{{ url_for('stats.index') }}" class="hover:text-secondary transition px-3 py-2 rounded">Statistics</a>
+                        <a href="{{ url_for('import.index') }}" class="hover:text-secondary transition px-3 py-2 rounded">Import</a>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <form action="{{ url_for('books.library') }}" method="get" class="hidden md:block">
+                        <input type="text" name="search" placeholder="Search books..."
+                               class="px-4 py-2 rounded bg-white text-gray-800 focus:outline-none focus:ring-2 focus:ring-secondary"
+                               value="{{ request.args.get('search', '') }}">
+                    </form>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="container mx-auto px-4 mt-4">
+                {% for category, message in messages %}
+                    <div class="p-4 rounded mb-2 {% if category == 'error' %}bg-red-100 text-red-700{% else %}bg-green-100 text-green-700{% endif %}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <main class="container mx-auto px-4 py-8">
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="bg-primary text-white mt-16 py-6">
+        <div class="container mx-auto px-4 text-center">
+            <p class="text-sm">
+                My Personal Library |
+                {% if stats is defined and stats.total_books is defined %}
+                    {{ stats.total_books }} books in collection
+                {% else %}
+                    Your reading journey
+                {% endif %}
+            </p>
+        </div>
+    </footer>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
