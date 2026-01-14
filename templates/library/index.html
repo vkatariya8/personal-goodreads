@@ -6,6 +6,10 @@
 <div class="max-w-7xl mx-auto">
     <div class="flex justify-between items-center mb-8">
         <h1 class="text-4xl font-serif font-bold text-primary">Library</h1>
+        <a href="{{ url_for('books.add') }}"
+           class="bg-primary text-white px-6 py-2 rounded-lg font-semibold hover:bg-opacity-90 transition">
+            + Add Book
+        </a>
     </div>
 
     <div class="bg-white rounded-lg shadow-md p-6 mb-8">
@@ -129,6 +133,8 @@
         <p class="text-xl text-gray-600 mb-4">No books found</p>
         {% if search or status_filter or rating_filter or category_filter %}
         <a href="{{ url_for('books.library') }}" class="text-primary hover:underline">Clear filters</a>
+        {% else %}
+        <a href="{{ url_for('books.add') }}" class="text-primary hover:underline font-medium">Add your first book</a>
         {% endif %}
     </div>
     {% endif %}

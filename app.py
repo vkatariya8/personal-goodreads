@@ -1,10 +1,12 @@
 import os
 from flask import Flask
 from flask_migrate import Migrate
+from flask_wtf.csrf import CSRFProtect
 from config import Config
 from models import db
 
 migrate = Migrate()
+csrf = CSRFProtect()
 
 
 def create_app(config_class=Config):
@@ -13,6 +15,7 @@ def create_app(config_class=Config):
 
     db.init_app(app)
     migrate.init_app(app, db)
+    csrf.init_app(app)
 
     from routes import main, books, stats, import_routes, api
     app.register_blueprint(main.bp)

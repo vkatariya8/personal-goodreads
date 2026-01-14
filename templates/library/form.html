@@ -1,0 +1,156 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }} - My Personal Library{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto">
+    <a href="{% if is_edit %}{{ url_for('books.detail', book_id=book.id) }}{% else %}{{ url_for('books.library') }}{% endif %}"
+       class="text-primary hover:underline mb-4 inline-block">
+        ← {% if is_edit %}Back to Book{% else %}Back to Library{% endif %}
+    </a>
+
+    <div class="bg-white rounded-lg shadow-lg p-8">
+        <h1 class="text-3xl font-serif font-bold text-primary mb-8">{{ title }}</h1>
+
+        <form method="POST">
+            {{ form.hidden_tag() }}
+
+            <div class="space-y-6">
+                <div class="border-b pb-6">
+                    <h2 class="text-lg font-semibold text-gray-700 mb-4">Book Information</h2>
+
+                    <div class="grid grid-cols-1 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">
+                                {{ form.title.label.text }} <span class="text-red-500">*</span>
+                            </label>
+                            {{ form.title(class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent") }}
+                            {% if form.title.errors %}
+                                {% for error in form.title.errors %}
+                                    <p class="text-red-500 text-sm mt-1">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">{{ form.author.label.text }}</label>
+                                {{ form.author(class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent") }}
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">{{ form.additional_authors.label.text }}</label>
+                                {{ form.additional_authors(class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent", placeholder="Comma separated") }}
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">{{ form.isbn.label.text }}</label>
+                                {{ form.isbn(class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent font-mono") }}
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">{{ form.isbn13.label.text }}</label>
+                                {{ form.isbn13(class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent font-mono") }}
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">{{ form.publisher.label.text }}</label>
+                                {{ form.publisher(class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent") }}
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">{{ form.binding.label.text }}</label>
+                                {{ form.binding(class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent") }}
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">{{ form.pages.label.text }}</label>
+                                {{ form.pages(class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent", type="number") }}
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">{{ form.year_published.label.text }}</label>
+                            {{ form.year_published(class="w-32 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent", type="number") }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="border-b pb-6">
+                    <h2 class="text-lg font-semibold text-gray-700 mb-4">Reading Status</h2>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">
+                                {{ form.status.label.text }} <span class="text-red-500">*</span>
+                            </label>
+                            {{ form.status(class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent") }}
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">{{ form.date_started.label.text }}</label>
+                            {{ form.date_started(class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent", type="date") }}
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">{{ form.date_finished.label.text }}</label>
+                            {{ form.date_finished(class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent", type="date") }}
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <h2 class="text-lg font-semibold text-gray-700 mb-4">My Review</h2>
+
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">{{ form.rating.label.text }}</label>
+                            {{ form.rating(class="w-48 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent") }}
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">{{ form.review_text.label.text }}</label>
+                            {{ form.review_text(class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent", rows=4, placeholder="What did you think of this book?") }}
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">{{ form.private_notes.label.text }}</label>
+                            {{ form.private_notes(class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent", rows=3, placeholder="Personal notes (only visible to you)") }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex items-center justify-between mt-8 pt-6 border-t">
+                <button type="submit"
+                        class="bg-primary text-white px-8 py-3 rounded-lg font-semibold hover:bg-opacity-90 transition">
+                    {% if is_edit %}Save Changes{% else %}Add Book{% endif %}
+                </button>
+
+                {% if is_edit %}
+                <button type="button" onclick="confirmDelete()"
+                        class="text-red-600 hover:text-red-800 font-medium">
+                    Delete Book
+                </button>
+                {% endif %}
+            </div>
+        </form>
+
+        {% if is_edit %}
+        <form id="delete-form" action="{{ url_for('books.delete', book_id=book.id) }}" method="POST" class="hidden">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        </form>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{% if is_edit %}
+<script>
+function confirmDelete() {
+    if (confirm('Are you sure you want to delete "{{ book.title }}"? This action cannot be undone.')) {
+        document.getElementById('delete-form').submit();
+    }
+}
+</script>
+{% endif %}
+{% endblock %}
