@@ -2,19 +2,224 @@
 
 {% block title %}Statistics - My Personal Library{% endblock %}
 
+{% block extra_head %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
+
 {% block content %}
 <div class="max-w-7xl mx-auto">
     <h1 class="text-4xl font-serif font-bold text-primary mb-8">Reading Statistics</h1>
 
-    <div class="bg-white rounded-lg shadow-md p-8">
-        <p class="text-gray-600">Statistics dashboard coming soon! This will show:</p>
-        <ul class="list-disc list-inside mt-4 space-y-2 text-gray-600">
-            <li>Books read per month over time</li>
-            <li>Genre analysis and breakdown</li>
-            <li>Author statistics</li>
-            <li>Rating distribution</li>
-            <li>And much more!</li>
-        </ul>
+    <!-- Summary Cards -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        <div class="bg-white rounded-lg shadow-md p-6 text-center">
+            <p class="text-4xl font-bold text-primary">{{ stats.total_books }}</p>
+            <p class="text-gray-600">Total Books</p>
+        </div>
+        <div class="bg-white rounded-lg shadow-md p-6 text-center">
+            <p class="text-4xl font-bold text-green-600">{{ stats.books_read }}</p>
+            <p class="text-gray-600">Books Read</p>
+        </div>
+        <div class="bg-white rounded-lg shadow-md p-6 text-center">
+            <p class="text-4xl font-bold text-blue-600">{{ stats.currently_reading }}</p>
+            <p class="text-gray-600">Currently Reading</p>
+        </div>
+        <div class="bg-white rounded-lg shadow-md p-6 text-center">
+            <p class="text-4xl font-bold text-gray-600">{{ stats.to_read }}</p>
+            <p class="text-gray-600">To Read</p>
+        </div>
+    </div>
+
+    <!-- Secondary Stats -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        <div class="bg-white rounded-lg shadow-md p-6 text-center">
+            <p class="text-3xl font-bold text-accent">{{ stats.books_read_this_year }}</p>
+            <p class="text-gray-600">Read This Year</p>
+        </div>
+        <div class="bg-white rounded-lg shadow-md p-6 text-center">
+            <p class="text-3xl font-bold text-accent">{{ "{:,}".format(stats.pages_read) }}</p>
+            <p class="text-gray-600">Pages Read</p>
+        </div>
+        <div class="bg-white rounded-lg shadow-md p-6 text-center">
+            <p class="text-3xl font-bold text-accent">{{ stats.avg_books_per_month }}</p>
+            <p class="text-gray-600">Books/Month (Avg)</p>
+        </div>
+        <div class="bg-white rounded-lg shadow-md p-6 text-center">
+            {% if stats.average_rating %}
+            <p class="text-3xl font-bold text-accent">{{ stats.average_rating }}</p>
+            <p class="text-gray-600">Average Rating</p>
+            {% else %}
+            <p class="text-3xl font-bold text-gray-400">-</p>
+            <p class="text-gray-600">Average Rating</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+        <!-- Books Read Over Time Chart -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h2 class="text-xl font-semibold mb-4">Books Read Over Time</h2>
+            {% if stats.books_by_month %}
+            <canvas id="booksOverTimeChart" height="200"></canvas>
+            {% else %}
+            <p class="text-gray-500 text-center py-8">No reading history with dates yet</p>
+            {% endif %}
+        </div>
+
+        <!-- Rating Distribution Chart -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h2 class="text-xl font-semibold mb-4">Rating Distribution</h2>
+            {% if stats.rating_distribution %}
+            <canvas id="ratingChart" height="200"></canvas>
+            {% else %}
+            <p class="text-gray-500 text-center py-8">No ratings yet</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+        <!-- Top Categories -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h2 class="text-xl font-semibold mb-4">Top Categories</h2>
+            {% if stats.top_categories %}
+            <div class="space-y-3">
+                {% for cat in stats.top_categories %}
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <span class="w-4 h-4 rounded-full mr-3" style="background-color: {{ cat.color }}"></span>
+                        <span class="text-gray-700">{{ cat.name }}</span>
+                    </div>
+                    <span class="font-semibold text-gray-600">{{ cat.count }} books</span>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="text-gray-500 text-center py-8">No categories yet</p>
+            {% endif %}
+        </div>
+
+        <!-- Top Authors -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h2 class="text-xl font-semibold mb-4">Most Read Authors</h2>
+            {% if stats.top_authors %}
+            <div class="space-y-3">
+                {% for author in stats.top_authors %}
+                <div class="flex items-center justify-between">
+                    <span class="text-gray-700">{{ author.author }}</span>
+                    <span class="font-semibold text-gray-600">{{ author.count }} books</span>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="text-gray-500 text-center py-8">No authors data yet</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Book Records -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {% if stats.longest_book %}
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h2 class="text-xl font-semibold mb-4">Longest Book Read</h2>
+            <div class="flex items-center">
+                <img src="{{ stats.longest_book.cover_url }}" alt="{{ stats.longest_book.title }}"
+                     class="w-16 h-24 object-cover rounded shadow mr-4">
+                <div>
+                    <p class="font-semibold">{{ stats.longest_book.title }}</p>
+                    <p class="text-sm text-gray-600">{{ stats.longest_book.display_author }}</p>
+                    <p class="text-lg font-bold text-primary mt-1">{{ "{:,}".format(stats.longest_book.pages) }} pages</p>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        {% if stats.shortest_book %}
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h2 class="text-xl font-semibold mb-4">Shortest Book Read</h2>
+            <div class="flex items-center">
+                <img src="{{ stats.shortest_book.cover_url }}" alt="{{ stats.shortest_book.title }}"
+                     class="w-16 h-24 object-cover rounded shadow mr-4">
+                <div>
+                    <p class="font-semibold">{{ stats.shortest_book.title }}</p>
+                    <p class="text-sm text-gray-600">{{ stats.shortest_book.display_author }}</p>
+                    <p class="text-lg font-bold text-primary mt-1">{{ "{:,}".format(stats.shortest_book.pages) }} pages</p>
+                </div>
+            </div>
+        </div>
+        {% endif %}
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+{% if stats.books_by_month %}
+// Books Over Time Chart
+const booksCtx = document.getElementById('booksOverTimeChart').getContext('2d');
+new Chart(booksCtx, {
+    type: 'bar',
+    data: {
+        labels: {{ stats.books_by_month | map(attribute='month') | list | tojson }},
+        datasets: [{
+            label: 'Books Read',
+            data: {{ stats.books_by_month | map(attribute='count') | list | tojson }},
+            backgroundColor: '#8B4513',
+            borderRadius: 4,
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: {
+                display: false
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: {
+                    stepSize: 1
+                }
+            }
+        }
+    }
+});
+{% endif %}
+
+{% if stats.rating_distribution %}
+// Rating Distribution Chart
+const ratingCtx = document.getElementById('ratingChart').getContext('2d');
+new Chart(ratingCtx, {
+    type: 'doughnut',
+    data: {
+        labels: ['1 Star', '2 Stars', '3 Stars', '4 Stars', '5 Stars'],
+        datasets: [{
+            data: [
+                {{ stats.rating_distribution.get(1, 0) }},
+                {{ stats.rating_distribution.get(2, 0) }},
+                {{ stats.rating_distribution.get(3, 0) }},
+                {{ stats.rating_distribution.get(4, 0) }},
+                {{ stats.rating_distribution.get(5, 0) }}
+            ],
+            backgroundColor: [
+                '#EF4444',
+                '#F97316',
+                '#EAB308',
+                '#22C55E',
+                '#10B981'
+            ],
+            borderWidth: 0
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: {
+                position: 'right'
+            }
+        }
+    }
+});
+{% endif %}
+</script>
 {% endblock %}
