@@ -9,6 +9,9 @@ class ImportHistory(db.Model):
     filename = db.Column(db.String(300), nullable=False)
     import_date = db.Column(db.DateTime, default=datetime.utcnow)
     books_imported = db.Column(db.Integer, default=0)
+    books_skipped = db.Column(db.Integer, default=0)
+    books_with_errors = db.Column(db.Integer, default=0)
+    covers_downloaded = db.Column(db.Integer, default=0)
     status = db.Column(db.String(20), default='success')
     error_log = db.Column(db.Text, nullable=True)
 

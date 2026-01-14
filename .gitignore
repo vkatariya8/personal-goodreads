@@ -60,3 +60,6 @@ migrations/versions/*.py
 
 # Claude Code
 .claude/
+
+# Uploads
+uploads/

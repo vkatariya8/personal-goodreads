@@ -21,3 +21,9 @@ class Config:
 
     COVER_THUMBNAIL_SIZE = (200, 300)
     COVER_ORIGINAL_MAX_SIZE = (800, 1200)
+
+    # CSV Import settings
+    CSV_UPLOAD_FOLDER = basedir / 'uploads' / 'csv'
+    ALLOWED_CSV_EXTENSIONS = {'csv'}
+    COVER_DOWNLOAD_TIMEOUT = 10  # seconds
+    OPEN_LIBRARY_COVER_URL = 'https://covers.openlibrary.org/b/isbn/{isbn}-L.jpg'

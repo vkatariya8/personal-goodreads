@@ -6,22 +6,123 @@
 <div class="max-w-4xl mx-auto">
     <h1 class="text-4xl font-serif font-bold text-primary mb-8">Import from Goodreads</h1>
 
-    <div class="bg-white rounded-lg shadow-md p-8">
-        <h2 class="text-2xl font-semibold mb-4">How to Import</h2>
+    <div class="bg-white rounded-lg shadow-md p-8 mb-8">
+        <h2 class="text-2xl font-semibold mb-4">How to Export from Goodreads</h2>
 
-        <ol class="list-decimal list-inside space-y-3 mb-8 text-gray-700">
-            <li>Go to <a href="https://www.goodreads.com/review/import" target="_blank" class="text-primary hover:underline">Goodreads Export page</a></li>
+        <ol class="list-decimal list-inside space-y-3 mb-6 text-gray-700">
+            <li>Go to <a href="https://www.goodreads.com/review/import" target="_blank" class="text-primary hover:underline font-medium">Goodreads Export page</a></li>
             <li>Click "Export Library" to download your CSV file</li>
             <li>Upload the CSV file using the form below</li>
             <li>Wait for the import to complete</li>
         </ol>
 
-        <div class="border-2 border-dashed border-gray-300 rounded-lg p-12 text-center">
-            <p class="text-xl text-gray-500 mb-4">Import functionality coming soon!</p>
-            <p class="text-sm text-gray-500">
-                In the meantime, you can manually add books or wait for the import feature to be implemented.
-            </p>
-        </div>
+        <p class="text-sm text-gray-500">
+            Note: The export may take a few minutes to generate on Goodreads. Check your email for the download link if it doesn't appear immediately.
+        </p>
+    </div>
+
+    <div class="bg-white rounded-lg shadow-md p-8">
+        <h2 class="text-2xl font-semibold mb-6">Upload CSV File</h2>
+
+        <form method="POST" enctype="multipart/form-data">
+            {{ form.hidden_tag() }}
+
+            <div class="mb-6">
+                <label class="block text-gray-700 font-medium mb-2">{{ form.csv_file.label.text }}</label>
+                <div class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-primary transition cursor-pointer" id="drop-zone">
+                    <input type="file" name="csv_file" id="csv_file" accept=".csv" class="hidden">
+                    <div id="file-info">
+                        <svg class="mx-auto h-12 w-12 text-gray-400 mb-4" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                            <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                        <p class="text-gray-600 mb-2">Drop your CSV file here or <span class="text-primary font-medium">click to browse</span></p>
+                        <p class="text-sm text-gray-500">Only .csv files are accepted</p>
+                    </div>
+                    <div id="selected-file" class="hidden">
+                        <svg class="mx-auto h-12 w-12 text-green-500 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        <p class="text-gray-700 font-medium" id="file-name"></p>
+                        <p class="text-sm text-gray-500" id="file-size"></p>
+                    </div>
+                </div>
+                {% if form.csv_file.errors %}
+                    {% for error in form.csv_file.errors %}
+                        <p class="text-red-500 text-sm mt-2">{{ error }}</p>
+                    {% endfor %}
+                {% endif %}
+            </div>
+
+            <div class="mb-6 space-y-4">
+                <label class="flex items-center">
+                    {{ form.download_covers(class="h-5 w-5 text-primary rounded focus:ring-primary") }}
+                    <span class="ml-3 text-gray-700">{{ form.download_covers.label.text }}</span>
+                    <span class="ml-2 text-sm text-gray-500">(may slow down import)</span>
+                </label>
+
+                <label class="flex items-center">
+                    {{ form.skip_duplicates(class="h-5 w-5 text-primary rounded focus:ring-primary") }}
+                    <span class="ml-3 text-gray-700">{{ form.skip_duplicates.label.text }}</span>
+                    <span class="ml-2 text-sm text-gray-500">(recommended)</span>
+                </label>
+            </div>
+
+            <div class="flex items-center justify-between">
+                {{ form.submit(class="bg-primary text-white px-8 py-3 rounded-lg font-semibold hover:bg-opacity-90 transition cursor-pointer") }}
+                <a href="{{ url_for('import.history') }}" class="text-primary hover:underline">View Import History</a>
+            </div>
+        </form>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const dropZone = document.getElementById('drop-zone');
+    const fileInput = document.getElementById('csv_file');
+    const fileInfo = document.getElementById('file-info');
+    const selectedFile = document.getElementById('selected-file');
+    const fileName = document.getElementById('file-name');
+    const fileSize = document.getElementById('file-size');
+
+    dropZone.addEventListener('click', () => fileInput.click());
+
+    dropZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dropZone.classList.add('border-primary', 'bg-amber-50');
+    });
+
+    dropZone.addEventListener('dragleave', () => {
+        dropZone.classList.remove('border-primary', 'bg-amber-50');
+    });
+
+    dropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropZone.classList.remove('border-primary', 'bg-amber-50');
+        const files = e.dataTransfer.files;
+        if (files.length > 0 && files[0].name.endsWith('.csv')) {
+            fileInput.files = files;
+            showSelectedFile(files[0]);
+        }
+    });
+
+    fileInput.addEventListener('change', (e) => {
+        if (e.target.files.length > 0) {
+            showSelectedFile(e.target.files[0]);
+        }
+    });
+
+    function showSelectedFile(file) {
+        fileInfo.classList.add('hidden');
+        selectedFile.classList.remove('hidden');
+        fileName.textContent = file.name;
+        fileSize.textContent = formatFileSize(file.size);
+    }
+
+    function formatFileSize(bytes) {
+        if (bytes < 1024) return bytes + ' bytes';
+        if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+        return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+    }
+</script>
 {% endblock %}

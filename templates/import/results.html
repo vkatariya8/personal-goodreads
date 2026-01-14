@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+
+{% block title %}Import Results - My Personal Library{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <h1 class="text-4xl font-serif font-bold text-primary mb-8">Import Results</h1>
+
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+        <div class="bg-green-100 p-6 rounded-lg text-center">
+            <p class="text-4xl font-bold text-green-600">{{ import_record.books_imported }}</p>
+            <p class="text-gray-600">Books Imported</p>
+        </div>
+        <div class="bg-yellow-100 p-6 rounded-lg text-center">
+            <p class="text-4xl font-bold text-yellow-600">{{ import_record.books_skipped }}</p>
+            <p class="text-gray-600">Skipped</p>
+        </div>
+        <div class="bg-red-100 p-6 rounded-lg text-center">
+            <p class="text-4xl font-bold text-red-600">{{ import_record.books_with_errors }}</p>
+            <p class="text-gray-600">Errors</p>
+        </div>
+        <div class="bg-blue-100 p-6 rounded-lg text-center">
+            <p class="text-4xl font-bold text-blue-600">{{ import_record.covers_downloaded }}</p>
+            <p class="text-gray-600">Covers Downloaded</p>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+        <h2 class="text-xl font-semibold mb-4">Import Details</h2>
+        <dl class="grid grid-cols-2 gap-4 text-sm">
+            <div>
+                <dt class="text-gray-500">Filename</dt>
+                <dd class="font-medium">{{ import_record.filename }}</dd>
+            </div>
+            <div>
+                <dt class="text-gray-500">Import Date</dt>
+                <dd class="font-medium">{{ import_record.import_date.strftime('%B %d, %Y at %H:%M') }}</dd>
+            </div>
+            <div>
+                <dt class="text-gray-500">Status</dt>
+                <dd>
+                    {% if import_record.status == 'success' %}
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                            Success
+                        </span>
+                    {% elif import_record.status == 'partial' %}
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                            Partial
+                        </span>
+                    {% else %}
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                            Failed
+                        </span>
+                    {% endif %}
+                </dd>
+            </div>
+            <div>
+                <dt class="text-gray-500">Total Processed</dt>
+                <dd class="font-medium">{{ import_record.books_imported + import_record.books_skipped + import_record.books_with_errors }}</dd>
+            </div>
+        </dl>
+    </div>
+
+    {% if errors %}
+    <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+        <h2 class="text-xl font-semibold text-red-600 mb-4">Import Errors</h2>
+        <p class="text-sm text-gray-500 mb-4">The following rows could not be imported:</p>
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead>
+                    <tr class="text-left border-b">
+                        <th class="pb-2 pr-4">Row</th>
+                        <th class="pb-2 pr-4">Title</th>
+                        <th class="pb-2">Error</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for error in errors %}
+                    <tr class="border-b last:border-b-0">
+                        <td class="py-2 pr-4 text-gray-500">{{ error.row }}</td>
+                        <td class="py-2 pr-4 font-medium">{{ error.title }}</td>
+                        <td class="py-2 text-red-600">{{ error.error }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="flex gap-4">
+        <a href="{{ url_for('books.library') }}"
+           class="bg-primary text-white px-6 py-3 rounded-lg font-semibold hover:bg-opacity-90 transition">
+            View Library
+        </a>
+        <a href="{{ url_for('import.index') }}"
+           class="border-2 border-primary text-primary px-6 py-3 rounded-lg font-semibold hover:bg-primary hover:text-white transition">
+            Import More
+        </a>
+        <a href="{{ url_for('import.history') }}"
+           class="text-gray-600 px-6 py-3 hover:text-primary transition">
+            View History
+        </a>
+    </div>
+</div>
+{% endblock %}
