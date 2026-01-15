@@ -17,7 +17,8 @@ class Config:
     ALLOWED_COVER_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
 
     COVERS_PER_PAGE = 20
-    BOOKS_PER_PAGE = 20
+    BOOKS_PER_PAGE = 24
+    BOOKS_PER_PAGE_OPTIONS = [12, 24, 48, 96]
 
     COVER_THUMBNAIL_SIZE = (200, 300)
     COVER_ORIGINAL_MAX_SIZE = (800, 1200)

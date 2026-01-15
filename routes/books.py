@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash
+from flask import Blueprint, render_template, request, redirect, url_for, flash, current_app
 from models import db, Book, ReadingRecord, Review, Category, BookCategory
 from forms.book_forms import BookForm
 from sqlalchemy import or_
@@ -9,7 +9,18 @@ bp = Blueprint('books', __name__, url_prefix='/books')
 @bp.route('/library')
 def library():
     page = request.args.get('page', 1, type=int)
-    per_page = 20
+
+    # Per-page with validation
+    per_page_options = current_app.config.get('BOOKS_PER_PAGE_OPTIONS', [12, 24, 48, 96])
+    default_per_page = current_app.config.get('BOOKS_PER_PAGE', 24)
+    per_page = request.args.get('per_page', default_per_page, type=int)
+    if per_page not in per_page_options:
+        per_page = default_per_page
+
+    # View mode (grid or list)
+    view = request.args.get('view', 'grid')
+    if view not in ('grid', 'list'):
+        view = 'grid'
 
     query = Book.query
 
@@ -36,17 +47,30 @@ def library():
     if category_filter:
         query = query.join(BookCategory).filter(BookCategory.category_id == category_filter)
 
+    # Sort with direction
     sort_by = request.args.get('sort', 'date_added')
+    order = request.args.get('order', 'desc')
+    if order not in ('asc', 'desc'):
+        order = 'desc'
+
     if sort_by == 'title':
-        query = query.order_by(Book.title)
+        query = query.order_by(Book.title.asc() if order == 'asc' else Book.title.desc())
     elif sort_by == 'author':
-        query = query.order_by(Book.author)
+        query = query.order_by(Book.author.asc() if order == 'asc' else Book.author.desc())
     elif sort_by == 'date_added':
-        query = query.order_by(Book.date_added.desc())
+        query = query.order_by(Book.date_added.asc() if order == 'asc' else Book.date_added.desc())
     elif sort_by == 'date_read':
-        query = query.join(ReadingRecord).order_by(ReadingRecord.date_finished.desc())
+        query = query.outerjoin(ReadingRecord).order_by(
+            ReadingRecord.date_finished.asc() if order == 'asc' else ReadingRecord.date_finished.desc()
+        )
     elif sort_by == 'rating':
-        query = query.join(Review).order_by(Review.rating.desc())
+        query = query.outerjoin(Review).order_by(
+            Review.rating.asc() if order == 'asc' else Review.rating.desc()
+        )
+    elif sort_by == 'pages':
+        query = query.order_by(Book.pages.asc() if order == 'asc' else Book.pages.desc())
+    elif sort_by == 'year':
+        query = query.order_by(Book.year_published.asc() if order == 'asc' else Book.year_published.desc())
 
     pagination = query.paginate(page=page, per_page=per_page, error_out=False)
     books = pagination.items
@@ -62,7 +86,11 @@ def library():
         status_filter=status_filter,
         rating_filter=rating_filter,
         category_filter=category_filter,
-        sort_by=sort_by
+        sort_by=sort_by,
+        order=order,
+        per_page=per_page,
+        per_page_options=per_page_options,
+        view=view
     )
 
 
