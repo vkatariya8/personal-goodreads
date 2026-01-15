@@ -4,6 +4,9 @@
 
 {% block extra_head %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+<script src="https://cdn.jsdelivr.net/npm/cal-heatmap@4"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cal-heatmap@4/dist/cal-heatmap.css">
 {% endblock %}
 
 {% block content %}
@@ -29,6 +32,15 @@
             <p class="text-gray-600">To Read</p>
         </div>
     </div>
+
+    <!-- Reading Activity Heatmap -->
+    {% if stats.heatmap_data %}
+    <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+        <h2 class="text-2xl font-semibold mb-4">Reading Activity Heatmap</h2>
+        <p class="text-sm text-gray-600 mb-4">Books finished per day over the last year</p>
+        <div id="reading-heatmap"></div>
+    </div>
+    {% endif %}
 
     <!-- Year-over-Year Section -->
     {% if stats.yearly_comparison %}
@@ -388,6 +400,33 @@
 
 {% block extra_js %}
 <script>
+{% if stats.heatmap_data %}
+// Reading Activity Heatmap
+const cal = new CalHeatmap();
+cal.paint({
+    itemSelector: '#reading-heatmap',
+    date: { start: new Date(new Date().getFullYear(), new Date().getMonth() - 11, 1) },
+    range: 12,
+    domain: {
+        type: 'month',
+        label: { text: 'MMM', textAlign: 'middle' }
+    },
+    subDomain: { type: 'day', label: 'D' },
+    data: {
+        source: {{ stats.heatmap_data | tojson }},
+        x: 'date',
+        y: 'value'
+    },
+    scale: {
+        color: {
+            scheme: 'Oranges',
+            type: 'threshold',
+            domain: [1, 2, 3, 4]
+        }
+    }
+});
+{% endif %}
+
 {% if stats.yearly_comparison %}
 // Year-over-Year Chart
 const yearlyCtx = document.getElementById('yearlyChart').getContext('2d');

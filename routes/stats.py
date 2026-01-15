@@ -387,4 +387,23 @@ def index():
         for status, avg, count in avg_pages_by_status
     }
 
+    # Reading activity heatmap (last 365 days)
+    one_year_ago = (datetime.now() - timedelta(days=365)).date()
+    heatmap_data = db.session.query(
+        ReadingRecord.date_finished.label('date'),
+        func.count(ReadingRecord.id).label('count')
+    ).filter(
+        ReadingRecord.status == 'read',
+        ReadingRecord.date_finished.isnot(None),
+        ReadingRecord.date_finished >= one_year_ago
+    ).group_by(ReadingRecord.date_finished).all()
+
+    stats['heatmap_data'] = [
+        {
+            'date': record.date.strftime('%Y-%m-%d'),
+            'value': record.count
+        }
+        for record in heatmap_data
+    ]
+
     return render_template('stats/index.html', stats=stats)
