@@ -30,6 +30,58 @@
         </div>
     </div>
 
+    <!-- Year-over-Year Section -->
+    {% if stats.yearly_comparison %}
+    <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+        <h2 class="text-2xl font-semibold mb-4">Year-over-Year Comparison</h2>
+        <div class="grid grid-cols-3 gap-4 mb-4">
+            <div class="text-center">
+                <p class="text-3xl font-bold text-primary">{{ stats.current_year_count }}</p>
+                <p class="text-gray-600">This Year</p>
+            </div>
+            <div class="text-center">
+                <p class="text-3xl font-bold text-gray-500">{{ stats.previous_year_count }}</p>
+                <p class="text-gray-600">Last Year</p>
+            </div>
+            <div class="text-center">
+                {% if stats.yoy_change_pct is not none %}
+                <p class="text-3xl font-bold {% if stats.yoy_change_pct >= 0 %}text-green-600{% else %}text-red-600{% endif %}">
+                    {{ "%+.1f"|format(stats.yoy_change_pct) }}%
+                </p>
+                <p class="text-gray-600">Change</p>
+                {% else %}
+                <p class="text-3xl font-bold text-gray-400">-</p>
+                <p class="text-gray-600">Change</p>
+                {% endif %}
+            </div>
+        </div>
+        <canvas id="yearlyChart" height="150"></canvas>
+    </div>
+    {% endif %}
+
+    <!-- Reading Activity -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+        <!-- Books Read Over Time Chart -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h2 class="text-xl font-semibold mb-4">Books Read Over Time</h2>
+            {% if stats.books_by_month %}
+            <canvas id="booksOverTimeChart" height="200"></canvas>
+            {% else %}
+            <p class="text-gray-500 text-center py-8">No reading history with dates yet</p>
+            {% endif %}
+        </div>
+
+        <!-- Pages Read Over Time Chart -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h2 class="text-xl font-semibold mb-4">Pages Read Over Time</h2>
+            {% if stats.pages_by_month %}
+            <canvas id="pagesOverTimeChart" height="200"></canvas>
+            {% else %}
+            <p class="text-gray-500 text-center py-8">No reading history with dates yet</p>
+            {% endif %}
+        </div>
+    </div>
+
     <!-- Secondary Stats -->
     <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
         <div class="bg-white rounded-lg shadow-md p-6 text-center">
@@ -55,104 +107,323 @@
         </div>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-        <!-- Books Read Over Time Chart -->
-        <div class="bg-white rounded-lg shadow-md p-6">
-            <h2 class="text-xl font-semibold mb-4">Books Read Over Time</h2>
-            {% if stats.books_by_month %}
-            <canvas id="booksOverTimeChart" height="200"></canvas>
-            {% else %}
-            <p class="text-gray-500 text-center py-8">No reading history with dates yet</p>
-            {% endif %}
+    <!-- Reading Speed Analytics -->
+    <div class="mb-8">
+        <h2 class="text-2xl font-semibold mb-4">Reading Speed</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="bg-white rounded-lg shadow-md p-6 text-center">
+                {% if stats.avg_days_to_finish %}
+                <p class="text-3xl font-bold text-primary">{{ stats.avg_days_to_finish }}</p>
+                <p class="text-gray-600">Avg Days to Finish</p>
+                <p class="text-xs text-gray-500 mt-1">({{ stats.books_with_reading_time }} books tracked)</p>
+                {% else %}
+                <p class="text-3xl font-bold text-gray-400">-</p>
+                <p class="text-gray-600">Avg Days to Finish</p>
+                {% endif %}
+            </div>
+            <div class="bg-white rounded-lg shadow-md p-6 text-center">
+                <p class="text-3xl font-bold text-green-600">{{ stats.current_streak }}</p>
+                <p class="text-gray-600">Current Streak (days)</p>
+            </div>
+            <div class="bg-white rounded-lg shadow-md p-6 text-center">
+                <p class="text-3xl font-bold text-accent">{{ stats.longest_streak }}</p>
+                <p class="text-gray-600">Longest Streak (days)</p>
+            </div>
         </div>
+        {% if stats.fastest_read and stats.slowest_read %}
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+            <div class="bg-white rounded-lg shadow-md p-4">
+                <h3 class="font-semibold text-sm text-gray-700 mb-2">Fastest Read</h3>
+                <div class="flex items-center">
+                    <img src="{{ stats.fastest_read.book.cover_url }}" alt="{{ stats.fastest_read.book.title }}"
+                         class="w-12 h-18 object-cover rounded shadow mr-3">
+                    <div class="flex-1 min-w-0">
+                        <p class="font-semibold text-sm truncate">{{ stats.fastest_read.book.title }}</p>
+                        <p class="text-xs text-gray-600 truncate">{{ stats.fastest_read.book.display_author }}</p>
+                        <p class="text-sm font-bold text-green-600 mt-1">{{ stats.fastest_read.days }} days</p>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white rounded-lg shadow-md p-4">
+                <h3 class="font-semibold text-sm text-gray-700 mb-2">Slowest Read</h3>
+                <div class="flex items-center">
+                    <img src="{{ stats.slowest_read.book.cover_url }}" alt="{{ stats.slowest_read.book.title }}"
+                         class="w-12 h-18 object-cover rounded shadow mr-3">
+                    <div class="flex-1 min-w-0">
+                        <p class="font-semibold text-sm truncate">{{ stats.slowest_read.book.title }}</p>
+                        <p class="text-xs text-gray-600 truncate">{{ stats.slowest_read.book.display_author }}</p>
+                        <p class="text-sm font-bold text-primary mt-1">{{ stats.slowest_read.days }} days</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
 
-        <!-- Rating Distribution Chart -->
-        <div class="bg-white rounded-lg shadow-md p-6">
-            <h2 class="text-xl font-semibold mb-4">Rating Distribution</h2>
-            {% if stats.rating_distribution %}
-            <canvas id="ratingChart" height="200"></canvas>
-            {% else %}
-            <p class="text-gray-500 text-center py-8">No ratings yet</p>
-            {% endif %}
+    <!-- Ratings Analysis -->
+    <div class="mb-8">
+        <h2 class="text-2xl font-semibold mb-4">Ratings Analysis</h2>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Rating Distribution Chart -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h3 class="text-xl font-semibold mb-4">Rating Distribution</h3>
+                {% if stats.rating_distribution %}
+                <canvas id="ratingChart" height="200"></canvas>
+                {% else %}
+                <p class="text-gray-500 text-center py-8">No ratings yet</p>
+                {% endif %}
+            </div>
+
+            <!-- Rating Trends Over Time -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h3 class="text-xl font-semibold mb-4">Rating Trends Over Time</h3>
+                {% if stats.rating_trends %}
+                <canvas id="ratingTrendsChart" height="200"></canvas>
+                {% else %}
+                <p class="text-gray-500 text-center py-8">No rating trends yet</p>
+                {% endif %}
+            </div>
         </div>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-        <!-- Top Categories -->
-        <div class="bg-white rounded-lg shadow-md p-6">
-            <h2 class="text-xl font-semibold mb-4">Top Categories</h2>
-            {% if stats.top_categories %}
-            <div class="space-y-3">
-                {% for cat in stats.top_categories %}
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center">
-                        <span class="w-4 h-4 rounded-full mr-3" style="background-color: {{ cat.color }}"></span>
-                        <span class="text-gray-700">{{ cat.name }}</span>
+    <!-- Categorization -->
+    <div class="mb-8">
+        <h2 class="text-2xl font-semibold mb-4">Reading by Category</h2>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Top Categories -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h3 class="text-xl font-semibold mb-4">Top Categories</h3>
+                {% if stats.top_categories %}
+                <div class="space-y-3">
+                    {% for cat in stats.top_categories %}
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center">
+                            <span class="w-4 h-4 rounded-full mr-3" style="background-color: {{ cat.color }}"></span>
+                            <span class="text-gray-700">{{ cat.name }}</span>
+                        </div>
+                        <span class="font-semibold text-gray-600">{{ cat.count }} books</span>
                     </div>
-                    <span class="font-semibold text-gray-600">{{ cat.count }} books</span>
+                    {% endfor %}
                 </div>
-                {% endfor %}
+                {% else %}
+                <p class="text-gray-500 text-center py-8">No categories yet</p>
+                {% endif %}
             </div>
-            {% else %}
-            <p class="text-gray-500 text-center py-8">No categories yet</p>
-            {% endif %}
-        </div>
 
-        <!-- Top Authors -->
-        <div class="bg-white rounded-lg shadow-md p-6">
-            <h2 class="text-xl font-semibold mb-4">Most Read Authors</h2>
-            {% if stats.top_authors %}
-            <div class="space-y-3">
-                {% for author in stats.top_authors %}
-                <div class="flex items-center justify-between">
-                    <span class="text-gray-700">{{ author.author }}</span>
-                    <span class="font-semibold text-gray-600">{{ author.count }} books</span>
-                </div>
-                {% endfor %}
+            <!-- Category Breakdown Chart -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h3 class="text-xl font-semibold mb-4">Category Distribution</h3>
+                {% if stats.category_chart_data %}
+                <canvas id="categoryChart" height="200"></canvas>
+                {% else %}
+                <p class="text-gray-500 text-center py-8">No categories yet</p>
+                {% endif %}
             </div>
+        </div>
+    </div>
+
+    <!-- Authors & Publishers -->
+    <div class="mb-8">
+        <h2 class="text-2xl font-semibold mb-4">Authors & Publishers</h2>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Top Authors -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h3 class="text-xl font-semibold mb-4">Most Read Authors</h3>
+                {% if stats.top_authors %}
+                <div class="space-y-3">
+                    {% for author in stats.top_authors %}
+                    <div class="flex items-center justify-between">
+                        <span class="text-gray-700">{{ author.author }}</span>
+                        <span class="font-semibold text-gray-600">{{ author.count }} books</span>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="text-gray-500 text-center py-8">No authors data yet</p>
+                {% endif %}
+            </div>
+
+            <!-- Top Publishers -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h3 class="text-xl font-semibold mb-4">Top Publishers</h3>
+                {% if stats.top_publishers %}
+                <canvas id="publishersChart" height="200"></canvas>
+                {% else %}
+                <p class="text-gray-500 text-center py-8">No publisher data yet</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Publication Analysis -->
+    <div class="mb-8">
+        <h2 class="text-2xl font-semibold mb-4">Publication Analysis</h2>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- By Decade -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h3 class="text-xl font-semibold mb-4">Books by Publication Decade</h3>
+                {% if stats.publication_decades %}
+                <canvas id="publicationYearsChart" height="200"></canvas>
+                {% if stats.avg_publication_year %}
+                <p class="text-sm text-gray-600 text-center mt-3">Average: {{ stats.avg_publication_year }}</p>
+                {% endif %}
+                {% else %}
+                <p class="text-gray-500 text-center py-8">No publication year data yet</p>
+                {% endif %}
+            </div>
+
+            <!-- Oldest/Newest -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h3 class="text-xl font-semibold mb-4">Publication Extremes</h3>
+                {% if stats.oldest_book_read %}
+                <div class="mb-4">
+                    <p class="text-sm font-semibold text-gray-700 mb-2">Oldest Book Read</p>
+                    <div class="flex items-center">
+                        <img src="{{ stats.oldest_book_read.cover_url }}" alt="{{ stats.oldest_book_read.title }}"
+                             class="w-12 h-18 object-cover rounded shadow mr-3">
+                        <div class="flex-1 min-w-0">
+                            <p class="font-semibold text-sm truncate">{{ stats.oldest_book_read.title }}</p>
+                            <p class="text-xs text-gray-600 truncate">{{ stats.oldest_book_read.display_author }}</p>
+                            <p class="text-sm font-bold text-primary mt-1">{{ stats.oldest_book_read.year_published }}</p>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+                {% if stats.newest_book_read %}
+                <div>
+                    <p class="text-sm font-semibold text-gray-700 mb-2">Newest Book Read</p>
+                    <div class="flex items-center">
+                        <img src="{{ stats.newest_book_read.cover_url }}" alt="{{ stats.newest_book_read.title }}"
+                             class="w-12 h-18 object-cover rounded shadow mr-3">
+                        <div class="flex-1 min-w-0">
+                            <p class="font-semibold text-sm truncate">{{ stats.newest_book_read.title }}</p>
+                            <p class="text-xs text-gray-600 truncate">{{ stats.newest_book_read.display_author }}</p>
+                            <p class="text-sm font-bold text-primary mt-1">{{ stats.newest_book_read.year_published }}</p>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+                {% if not stats.oldest_book_read and not stats.newest_book_read %}
+                <p class="text-gray-500 text-center py-8">No publication year data yet</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Book Length Preferences -->
+    <div class="mb-8">
+        <h2 class="text-2xl font-semibold mb-4">Book Length Preferences</h2>
+        <div class="bg-white rounded-lg shadow-md p-6 mb-4">
+            <h3 class="text-xl font-semibold mb-4">Page Count Distribution</h3>
+            {% if stats.page_count_buckets %}
+            <canvas id="pageLengthChart" height="150"></canvas>
             {% else %}
-            <p class="text-gray-500 text-center py-8">No authors data yet</p>
+            <p class="text-gray-500 text-center py-8">No page count data yet</p>
             {% endif %}
         </div>
+        {% if stats.avg_pages_by_status %}
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {% if 'read' in stats.avg_pages_by_status %}
+            <div class="bg-white rounded-lg shadow-md p-6 text-center">
+                <p class="text-3xl font-bold text-green-600">{{ stats.avg_pages_by_status['read'].avg }}</p>
+                <p class="text-gray-600">Avg Pages (Read)</p>
+                <p class="text-xs text-gray-500 mt-1">{{ stats.avg_pages_by_status['read'].count }} books</p>
+            </div>
+            {% endif %}
+            {% if 'currently-reading' in stats.avg_pages_by_status %}
+            <div class="bg-white rounded-lg shadow-md p-6 text-center">
+                <p class="text-3xl font-bold text-blue-600">{{ stats.avg_pages_by_status['currently-reading'].avg }}</p>
+                <p class="text-gray-600">Avg Pages (Reading)</p>
+                <p class="text-xs text-gray-500 mt-1">{{ stats.avg_pages_by_status['currently-reading'].count }} books</p>
+            </div>
+            {% endif %}
+            {% if 'to-read' in stats.avg_pages_by_status %}
+            <div class="bg-white rounded-lg shadow-md p-6 text-center">
+                <p class="text-3xl font-bold text-gray-600">{{ stats.avg_pages_by_status['to-read'].avg }}</p>
+                <p class="text-gray-600">Avg Pages (To Read)</p>
+                <p class="text-xs text-gray-500 mt-1">{{ stats.avg_pages_by_status['to-read'].count }} books</p>
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
     </div>
 
     <!-- Book Records -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {% if stats.longest_book %}
-        <div class="bg-white rounded-lg shadow-md p-6">
-            <h2 class="text-xl font-semibold mb-4">Longest Book Read</h2>
-            <div class="flex items-center">
-                <img src="{{ stats.longest_book.cover_url }}" alt="{{ stats.longest_book.title }}"
-                     class="w-16 h-24 object-cover rounded shadow mr-4">
-                <div>
-                    <p class="font-semibold">{{ stats.longest_book.title }}</p>
-                    <p class="text-sm text-gray-600">{{ stats.longest_book.display_author }}</p>
-                    <p class="text-lg font-bold text-primary mt-1">{{ "{:,}".format(stats.longest_book.pages) }} pages</p>
+    <div class="mb-8">
+        <h2 class="text-2xl font-semibold mb-4">Reading Records</h2>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {% if stats.longest_book %}
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h3 class="text-xl font-semibold mb-4">Longest Book Read</h3>
+                <div class="flex items-center">
+                    <img src="{{ stats.longest_book.cover_url }}" alt="{{ stats.longest_book.title }}"
+                         class="w-16 h-24 object-cover rounded shadow mr-4">
+                    <div>
+                        <p class="font-semibold">{{ stats.longest_book.title }}</p>
+                        <p class="text-sm text-gray-600">{{ stats.longest_book.display_author }}</p>
+                        <p class="text-lg font-bold text-primary mt-1">{{ "{:,}".format(stats.longest_book.pages) }} pages</p>
+                    </div>
                 </div>
             </div>
-        </div>
-        {% endif %}
+            {% endif %}
 
-        {% if stats.shortest_book %}
-        <div class="bg-white rounded-lg shadow-md p-6">
-            <h2 class="text-xl font-semibold mb-4">Shortest Book Read</h2>
-            <div class="flex items-center">
-                <img src="{{ stats.shortest_book.cover_url }}" alt="{{ stats.shortest_book.title }}"
-                     class="w-16 h-24 object-cover rounded shadow mr-4">
-                <div>
-                    <p class="font-semibold">{{ stats.shortest_book.title }}</p>
-                    <p class="text-sm text-gray-600">{{ stats.shortest_book.display_author }}</p>
-                    <p class="text-lg font-bold text-primary mt-1">{{ "{:,}".format(stats.shortest_book.pages) }} pages</p>
+            {% if stats.shortest_book %}
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h3 class="text-xl font-semibold mb-4">Shortest Book Read</h3>
+                <div class="flex items-center">
+                    <img src="{{ stats.shortest_book.cover_url }}" alt="{{ stats.shortest_book.title }}"
+                         class="w-16 h-24 object-cover rounded shadow mr-4">
+                    <div>
+                        <p class="font-semibold">{{ stats.shortest_book.title }}</p>
+                        <p class="text-sm text-gray-600">{{ stats.shortest_book.display_author }}</p>
+                        <p class="text-lg font-bold text-primary mt-1">{{ "{:,}".format(stats.shortest_book.pages) }} pages</p>
+                    </div>
                 </div>
             </div>
+            {% endif %}
         </div>
-        {% endif %}
     </div>
 </div>
 {% endblock %}
 
 {% block extra_js %}
 <script>
+{% if stats.yearly_comparison %}
+// Year-over-Year Chart
+const yearlyCtx = document.getElementById('yearlyChart').getContext('2d');
+new Chart(yearlyCtx, {
+    type: 'line',
+    data: {
+        labels: {{ stats.yearly_comparison | map(attribute='year') | list | tojson }},
+        datasets: [{
+            label: 'Books Read',
+            data: {{ stats.yearly_comparison | map(attribute='count') | list | tojson }},
+            backgroundColor: 'rgba(139, 69, 19, 0.1)',
+            borderColor: '#8B4513',
+            borderWidth: 2,
+            fill: true,
+            tension: 0.3
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: {
+                display: false
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: {
+                    stepSize: 10
+                }
+            }
+        }
+    }
+});
+{% endif %}
+
 {% if stats.books_by_month %}
 // Books Over Time Chart
 const booksCtx = document.getElementById('booksOverTimeChart').getContext('2d');
@@ -180,6 +451,36 @@ new Chart(booksCtx, {
                 ticks: {
                     stepSize: 1
                 }
+            }
+        }
+    }
+});
+{% endif %}
+
+{% if stats.pages_by_month %}
+// Pages Over Time Chart
+const pagesCtx = document.getElementById('pagesOverTimeChart').getContext('2d');
+new Chart(pagesCtx, {
+    type: 'bar',
+    data: {
+        labels: {{ stats.pages_by_month | map(attribute='month') | list | tojson }},
+        datasets: [{
+            label: 'Pages Read',
+            data: {{ stats.pages_by_month | map(attribute='pages') | list | tojson }},
+            backgroundColor: '#D4A574',
+            borderRadius: 4,
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: {
+                display: false
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true
             }
         }
     }
@@ -216,6 +517,170 @@ new Chart(ratingCtx, {
         plugins: {
             legend: {
                 position: 'right'
+            }
+        }
+    }
+});
+{% endif %}
+
+{% if stats.rating_trends %}
+// Rating Trends Chart
+const ratingTrendsCtx = document.getElementById('ratingTrendsChart').getContext('2d');
+new Chart(ratingTrendsCtx, {
+    type: 'line',
+    data: {
+        labels: {{ stats.rating_trends | map(attribute='month') | list | tojson }},
+        datasets: [{
+            label: 'Average Rating',
+            data: {{ stats.rating_trends | map(attribute='avg_rating') | list | tojson }},
+            backgroundColor: 'rgba(234, 179, 8, 0.1)',
+            borderColor: '#EAB308',
+            borderWidth: 2,
+            fill: true,
+            tension: 0.3
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: {
+                display: false
+            }
+        },
+        scales: {
+            y: {
+                min: 0,
+                max: 5,
+                ticks: {
+                    stepSize: 0.5
+                }
+            }
+        }
+    }
+});
+{% endif %}
+
+{% if stats.category_chart_data %}
+// Category Breakdown Chart
+const categoryCtx = document.getElementById('categoryChart').getContext('2d');
+new Chart(categoryCtx, {
+    type: 'doughnut',
+    data: {
+        labels: {{ stats.category_chart_data | map(attribute='name') | list | tojson }},
+        datasets: [{
+            data: {{ stats.category_chart_data | map(attribute='count') | list | tojson }},
+            backgroundColor: {{ stats.category_chart_data | map(attribute='color') | list | tojson }},
+            borderWidth: 0
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: {
+                position: 'right',
+                labels: {
+                    boxWidth: 15
+                }
+            }
+        }
+    }
+});
+{% endif %}
+
+{% if stats.top_publishers %}
+// Publishers Chart
+const publishersCtx = document.getElementById('publishersChart').getContext('2d');
+new Chart(publishersCtx, {
+    type: 'bar',
+    data: {
+        labels: {{ stats.top_publishers | map(attribute='publisher') | list | tojson }},
+        datasets: [{
+            label: 'Books',
+            data: {{ stats.top_publishers | map(attribute='count') | list | tojson }},
+            backgroundColor: '#8B4513',
+            borderRadius: 4,
+        }]
+    },
+    options: {
+        indexAxis: 'y',
+        responsive: true,
+        plugins: {
+            legend: {
+                display: false
+            }
+        },
+        scales: {
+            x: {
+                beginAtZero: true,
+                ticks: {
+                    stepSize: 1
+                }
+            }
+        }
+    }
+});
+{% endif %}
+
+{% if stats.publication_decades %}
+// Publication Years Chart
+const pubYearsCtx = document.getElementById('publicationYearsChart').getContext('2d');
+new Chart(pubYearsCtx, {
+    type: 'bar',
+    data: {
+        labels: {{ stats.publication_decades | map(attribute='decade') | list | tojson }},
+        datasets: [{
+            label: 'Books Read',
+            data: {{ stats.publication_decades | map(attribute='count') | list | tojson }},
+            backgroundColor: '#2E8B57',
+            borderRadius: 4,
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: {
+                display: false
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: {
+                    stepSize: 1
+                }
+            }
+        }
+    }
+});
+{% endif %}
+
+{% if stats.page_count_buckets %}
+// Page Length Chart
+const pageLengthCtx = document.getElementById('pageLengthChart').getContext('2d');
+new Chart(pageLengthCtx, {
+    type: 'bar',
+    data: {
+        labels: {{ stats.page_count_buckets | map(attribute='range') | list | tojson }},
+        datasets: [{
+            label: 'Books',
+            data: {{ stats.page_count_buckets | map(attribute='count') | list | tojson }},
+            backgroundColor: '#E67E22',
+            borderRadius: 4,
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: {
+                display: false
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: {
+                    stepSize: 1
+                }
             }
         }
     }
