@@ -11,41 +11,41 @@
 
 {% block content %}
 <div class="max-w-7xl mx-auto">
-    <h1 class="text-4xl font-serif font-bold text-primary mb-8">Reading Statistics</h1>
+    <h1 class="text-4xl font-bold tracking-tight text-gray-900 dark:text-white mb-8">Reading Statistics</h1>
 
     <!-- Summary Cards -->
     <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-        <div class="bg-white rounded-lg shadow-md p-6 text-center">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6 text-center">
             <p class="text-4xl font-bold text-primary">{{ stats.total_books }}</p>
-            <p class="text-gray-600">Total Books</p>
+            <p class="text-sm text-gray-600 dark:text-gray-400">Total Books</p>
         </div>
-        <div class="bg-white rounded-lg shadow-md p-6 text-center">
-            <p class="text-4xl font-bold text-green-600">{{ stats.books_read }}</p>
-            <p class="text-gray-600">Books Read</p>
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6 text-center">
+            <p class="text-4xl font-bold text-green-600 dark:text-green-400">{{ stats.books_read }}</p>
+            <p class="text-sm text-gray-600 dark:text-gray-400">Books Read</p>
         </div>
-        <div class="bg-white rounded-lg shadow-md p-6 text-center">
-            <p class="text-4xl font-bold text-blue-600">{{ stats.currently_reading }}</p>
-            <p class="text-gray-600">Currently Reading</p>
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6 text-center">
+            <p class="text-4xl font-bold text-blue-600 dark:text-blue-400">{{ stats.currently_reading }}</p>
+            <p class="text-sm text-gray-600 dark:text-gray-400">Currently Reading</p>
         </div>
-        <div class="bg-white rounded-lg shadow-md p-6 text-center">
-            <p class="text-4xl font-bold text-gray-600">{{ stats.to_read }}</p>
-            <p class="text-gray-600">To Read</p>
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6 text-center">
+            <p class="text-4xl font-bold text-gray-600 dark:text-gray-400">{{ stats.to_read }}</p>
+            <p class="text-sm text-gray-600 dark:text-gray-400">To Read</p>
         </div>
     </div>
 
     <!-- Reading Activity Heatmap -->
     {% if stats.heatmap_data %}
-    <div class="bg-white rounded-lg shadow-md p-6 mb-8">
-        <h2 class="text-2xl font-semibold mb-4">Reading Activity Heatmap</h2>
-        <p class="text-sm text-gray-600 mb-4">Books finished per day over the last year</p>
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6 mb-8">
+        <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">Reading Activity Heatmap</h2>
+        <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">Books finished per day over the last year</p>
         <div id="reading-heatmap"></div>
     </div>
     {% endif %}
 
     <!-- Year-over-Year Section -->
     {% if stats.yearly_comparison %}
-    <div class="bg-white rounded-lg shadow-md p-6 mb-8">
-        <h2 class="text-2xl font-semibold mb-4">Year-over-Year Comparison</h2>
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6 mb-8">
+        <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">Year-over-Year Comparison</h2>
         <div class="grid grid-cols-3 gap-4 mb-4">
             <div class="text-center">
                 <p class="text-3xl font-bold text-primary">{{ stats.current_year_count }}</p>
@@ -121,7 +121,7 @@
 
     <!-- Reading Speed Analytics -->
     <div class="mb-8">
-        <h2 class="text-2xl font-semibold mb-4">Reading Speed</h2>
+        <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">Reading Speed</h2>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div class="bg-white rounded-lg shadow-md p-6 text-center">
                 {% if stats.avg_days_to_finish %}
@@ -174,7 +174,7 @@
 
     <!-- Ratings Analysis -->
     <div class="mb-8">
-        <h2 class="text-2xl font-semibold mb-4">Ratings Analysis</h2>
+        <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">Ratings Analysis</h2>
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
             <!-- Rating Distribution Chart -->
             <div class="bg-white rounded-lg shadow-md p-6">
@@ -200,7 +200,7 @@
 
     <!-- Shelves -->
     <div class="mb-8">
-        <h2 class="text-2xl font-semibold mb-4">Reading by Shelf</h2>
+        <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">Reading by Shelf</h2>
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
             <!-- Top Shelves -->
             <div class="bg-white rounded-lg shadow-md p-6">
@@ -236,7 +236,7 @@
 
     <!-- Authors & Publishers -->
     <div class="mb-8">
-        <h2 class="text-2xl font-semibold mb-4">Authors & Publishers</h2>
+        <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">Authors & Publishers</h2>
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
             <!-- Top Authors -->
             <div class="bg-white rounded-lg shadow-md p-6">
@@ -269,7 +269,7 @@
 
     <!-- Publication Analysis -->
     <div class="mb-8">
-        <h2 class="text-2xl font-semibold mb-4">Publication Analysis</h2>
+        <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">Publication Analysis</h2>
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
             <!-- By Decade -->
             <div class="bg-white rounded-lg shadow-md p-6">
@@ -324,7 +324,7 @@
 
     <!-- Book Length Preferences -->
     <div class="mb-8">
-        <h2 class="text-2xl font-semibold mb-4">Book Length Preferences</h2>
+        <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">Book Length Preferences</h2>
         <div class="bg-white rounded-lg shadow-md p-6 mb-4">
             <h3 class="text-xl font-semibold mb-4">Page Count Distribution</h3>
             {% if stats.page_count_buckets %}
@@ -362,7 +362,7 @@
 
     <!-- Book Records -->
     <div class="mb-8">
-        <h2 class="text-2xl font-semibold mb-4">Reading Records</h2>
+        <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">Reading Records</h2>
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {% if stats.longest_book %}
             <div class="bg-white rounded-lg shadow-md p-6">
@@ -438,7 +438,7 @@ new Chart(yearlyCtx, {
             label: 'Books Read',
             data: {{ stats.yearly_comparison | map(attribute='count') | list | tojson }},
             backgroundColor: 'rgba(139, 69, 19, 0.1)',
-            borderColor: '#8B4513',
+            borderColor: '#00f',
             borderWidth: 2,
             fill: true,
             tension: 0.3
@@ -473,7 +473,7 @@ new Chart(booksCtx, {
         datasets: [{
             label: 'Books Read',
             data: {{ stats.books_by_month | map(attribute='count') | list | tojson }},
-            backgroundColor: '#8B4513',
+            backgroundColor: '#00f',
             borderRadius: 4,
         }]
     },
@@ -506,7 +506,7 @@ new Chart(pagesCtx, {
         datasets: [{
             label: 'Pages Read',
             data: {{ stats.pages_by_month | map(attribute='pages') | list | tojson }},
-            backgroundColor: '#D4A574',
+            backgroundColor: '#6c6c89',
             borderRadius: 4,
         }]
     },
@@ -636,7 +636,7 @@ new Chart(publishersCtx, {
         datasets: [{
             label: 'Books',
             data: {{ stats.top_publishers | map(attribute='count') | list | tojson }},
-            backgroundColor: '#8B4513',
+            backgroundColor: '#00f',
             borderRadius: 4,
         }]
     },
@@ -703,7 +703,7 @@ new Chart(pageLengthCtx, {
         datasets: [{
             label: 'Books',
             data: {{ stats.page_count_buckets | map(attribute='count') | list | tojson }},
-            backgroundColor: '#E67E22',
+            backgroundColor: '#00f',
             borderRadius: 4,
         }]
     },

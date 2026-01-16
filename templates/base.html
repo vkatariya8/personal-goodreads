@@ -7,48 +7,112 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
+            darkMode: 'class',
             theme: {
                 extend: {
                     colors: {
-                        primary: '#8B4513',
-                        secondary: '#D4A574',
-                        accent: '#E67E22',
+                        primary: '#00f',
+                        gray: {
+                            50: '#f7f7f8',
+                            100: '#ebebef',
+                            150: '#e5e5e9',
+                            200: '#d1d1db',
+                            300: '#a9a9bc',
+                            400: '#8a8aa3',
+                            500: '#6c6c89',
+                            600: '#55556d',
+                            700: '#3f3f50',
+                            800: '#1d1d22',
+                            900: '#121217',
+                        },
                     },
                     fontFamily: {
-                        'serif': ['Playfair Display', 'serif'],
-                        'sans': ['Inter', 'sans-serif'],
+                        'sans': ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'xs': '0 1px 2px 0 rgba(18, 18, 23, 0.065)',
+                        'sm': '0 1px 3px 0 rgba(18, 18, 23, 0.1), 0 1px 2px 0 rgba(18, 18, 23, 0.06)',
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.15s ease-out',
+                        'slide-up': 'slideUp 0.2s ease-out',
+                        'scale-in': 'scaleIn 0.15s ease-out',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0', transform: 'translateY(-4px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        },
+                        slideUp: {
+                            '0%': { opacity: '0', transform: 'translateY(8px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        },
+                        scaleIn: {
+                            '0%': { opacity: '0', transform: 'scale(0.95)' },
+                            '100%': { opacity: '1', transform: 'scale(1)' },
+                        }
                     }
                 }
             }
         }
     </script>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
         .star-rating {
-            color: #F59E0B;
+            color: #eab308;
+        }
+
+        /* Dark mode support */
+        .dark {
+            color-scheme: dark;
+        }
+
+        /* Smooth transitions for theme switching */
+        * {
+            transition-property: background-color, border-color, color, fill, stroke;
+            transition-duration: 150ms;
+            transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Respect reduced motion preference */
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                transition-duration: 0.01ms !important;
+                animation-duration: 0.01ms !important;
+            }
         }
     </style>
     {% block extra_head %}{% endblock %}
 </head>
-<body class="bg-amber-50 font-sans">
-    <nav class="bg-primary text-white shadow-lg">
+<body class="bg-gray-50 dark:bg-gray-900 font-sans text-gray-900 dark:text-gray-100">
+    <nav class="bg-gray-900 text-white shadow-sm border-b border-gray-800">
         <div class="container mx-auto px-4">
             <div class="flex items-center justify-between h-16">
                 <div class="flex items-center space-x-8">
-                    <a href="{{ url_for('main.index') }}" class="font-serif text-2xl font-bold hover:text-secondary transition">
-                        📚 My Library
+                    <a href="{{ url_for('main.index') }}" class="text-xl font-bold tracking-tight hover:text-primary transition-colors duration-150">
+                        My Library
                     </a>
-                    <div class="hidden md:flex space-x-4">
-                        <a href="{{ url_for('books.library') }}" class="hover:text-secondary transition px-3 py-2 rounded">Library</a>
-                        <a href="{{ url_for('shelves.index') }}" class="hover:text-secondary transition px-3 py-2 rounded">Shelves</a>
-                        <a href="{{ url_for('stats.index') }}" class="hover:text-secondary transition px-3 py-2 rounded">Statistics</a>
-                        <a href="{{ url_for('import.index') }}" class="hover:text-secondary transition px-3 py-2 rounded">Import</a>
+                    <div class="hidden md:flex space-x-1">
+                        <a href="{{ url_for('books.library') }}" class="text-gray-300 hover:text-white hover:bg-gray-800 px-3 py-2 rounded-md text-sm font-medium transition-all duration-150">Library</a>
+                        <a href="{{ url_for('shelves.index') }}" class="text-gray-300 hover:text-white hover:bg-gray-800 px-3 py-2 rounded-md text-sm font-medium transition-all duration-150">Shelves</a>
+                        <a href="{{ url_for('stats.index') }}" class="text-gray-300 hover:text-white hover:bg-gray-800 px-3 py-2 rounded-md text-sm font-medium transition-all duration-150">Statistics</a>
+                        <a href="{{ url_for('import.index') }}" class="text-gray-300 hover:text-white hover:bg-gray-800 px-3 py-2 rounded-md text-sm font-medium transition-all duration-150">Import</a>
                     </div>
                 </div>
                 <div class="flex items-center space-x-4">
+                    <!-- Dark mode toggle -->
+                    <button id="theme-toggle" class="p-2 rounded-md hover:bg-gray-800 transition-all duration-150" aria-label="Toggle theme">
+                        <svg class="w-5 h-5 hidden dark:block" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z"></path>
+                        </svg>
+                        <svg class="w-5 h-5 block dark:hidden" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path>
+                        </svg>
+                    </button>
+
                     <form action="{{ url_for('books.library') }}" method="get" class="hidden md:block">
                         <input type="text" name="search" placeholder="Search books..."
-                               class="px-4 py-2 rounded bg-white text-gray-800 focus:outline-none focus:ring-2 focus:ring-secondary"
+                               class="px-4 py-2 rounded-md bg-gray-800 border border-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-150"
                                value="{{ request.args.get('search', '') }}">
                     </form>
                 </div>
@@ -60,10 +124,10 @@
         {% if messages %}
             <div class="container mx-auto px-4 mt-4">
                 {% for category, message in messages %}
-                    <div class="p-4 rounded mb-2
-                        {% if category == 'error' %}bg-red-100 text-red-700
-                        {% elif category == 'warning' %}bg-yellow-100 text-yellow-700
-                        {% else %}bg-green-100 text-green-700{% endif %}">
+                    <div class="p-4 rounded-md mb-2 border animate-fade-in
+                        {% if category == 'error' %}bg-red-50 dark:bg-red-900/20 text-red-800 dark:text-red-200 border-red-200 dark:border-red-800
+                        {% elif category == 'warning' %}bg-yellow-50 dark:bg-yellow-900/20 text-yellow-800 dark:text-yellow-200 border-yellow-200 dark:border-yellow-800
+                        {% else %}bg-green-50 dark:bg-green-900/20 text-green-800 dark:text-green-200 border-green-200 dark:border-green-800{% endif %}">
                         {{ message }}
                     </div>
                 {% endfor %}
@@ -75,9 +139,9 @@
         {% block content %}{% endblock %}
     </main>
 
-    <footer class="bg-primary text-white mt-16 py-6">
+    <footer class="bg-gray-900 text-white mt-16 py-6 border-t border-gray-800">
         <div class="container mx-auto px-4 text-center">
-            <p class="text-sm">
+            <p class="text-sm text-gray-400">
                 My Personal Library |
                 {% if stats is defined and stats.total_books is defined %}
                     {{ stats.total_books }} books in collection
@@ -89,5 +153,23 @@
     </footer>
 
     {% block extra_js %}{% endblock %}
+
+    <script>
+        // Dark mode toggle
+        const themeToggle = document.getElementById('theme-toggle');
+        const htmlElement = document.documentElement;
+
+        // Check for saved theme preference or default to light mode
+        const currentTheme = localStorage.getItem('theme') || 'light';
+        if (currentTheme === 'dark') {
+            htmlElement.classList.add('dark');
+        }
+
+        themeToggle.addEventListener('click', () => {
+            htmlElement.classList.toggle('dark');
+            const theme = htmlElement.classList.contains('dark') ? 'dark' : 'light';
+            localStorage.setItem('theme', theme);
+        });
+    </script>
 </body>
 </html>
