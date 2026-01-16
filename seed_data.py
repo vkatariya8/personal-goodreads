@@ -1,5 +1,5 @@
 from app import create_app
-from models import db, Book, ReadingRecord, Review, Category, BookCategory
+from models import db, Book, ReadingRecord, Review, Shelf, BookShelf
 from datetime import datetime, timedelta
 import random
 
@@ -7,25 +7,25 @@ app = create_app()
 
 with app.app_context():
     print("Clearing existing data...")
-    BookCategory.query.delete()
+    BookShelf.query.delete()
     Review.query.delete()
     ReadingRecord.query.delete()
-    Category.query.delete()
+    Shelf.query.delete()
     Book.query.delete()
     db.session.commit()
 
-    print("Creating categories...")
-    categories = [
-        Category(name='Fiction', color='#3498DB'),
-        Category(name='Non-Fiction', color='#E67E22'),
-        Category(name='Science Fiction', color='#9B59B6'),
-        Category(name='Fantasy', color='#1ABC9C'),
-        Category(name='Mystery', color='#34495E'),
-        Category(name='Biography', color='#F39C12'),
-        Category(name='History', color='#C0392B'),
-        Category(name='Science', color='#27AE60'),
+    print("Creating shelves...")
+    shelves = [
+        Shelf(name='Fiction', color='#3498DB'),
+        Shelf(name='Non-Fiction', color='#E67E22'),
+        Shelf(name='Science Fiction', color='#9B59B6'),
+        Shelf(name='Fantasy', color='#1ABC9C'),
+        Shelf(name='Mystery', color='#34495E'),
+        Shelf(name='Biography', color='#F39C12'),
+        Shelf(name='History', color='#C0392B'),
+        Shelf(name='Science', color='#27AE60'),
     ]
-    db.session.add_all(categories)
+    db.session.add_all(shelves)
     db.session.commit()
 
     print("Creating sample books...")
@@ -39,7 +39,7 @@ with app.app_context():
             'status': 'read',
             'rating': 5,
             'review': 'A timeless classic that explores themes of racial injustice and moral growth.',
-            'categories': ['Fiction'],
+            'shelves': ['Fiction'],
             'date_finished': datetime.now() - timedelta(days=30)
         },
         {
@@ -51,7 +51,7 @@ with app.app_context():
             'status': 'read',
             'rating': 5,
             'review': 'A chilling dystopian masterpiece that remains relevant today.',
-            'categories': ['Fiction', 'Science Fiction'],
+            'shelves': ['Fiction', 'Science Fiction'],
             'date_finished': datetime.now() - timedelta(days=60)
         },
         {
@@ -63,7 +63,7 @@ with app.app_context():
             'status': 'read',
             'rating': 4,
             'review': 'A beautiful exploration of the American Dream and its disillusionment.',
-            'categories': ['Fiction'],
+            'shelves': ['Fiction'],
             'date_finished': datetime.now() - timedelta(days=45)
         },
         {
@@ -75,7 +75,7 @@ with app.app_context():
             'status': 'currently-reading',
             'rating': None,
             'review': None,
-            'categories': ['Fantasy', 'Fiction'],
+            'shelves': ['Fantasy', 'Fiction'],
             'date_started': datetime.now() - timedelta(days=5)
         },
         {
@@ -87,7 +87,7 @@ with app.app_context():
             'status': 'read',
             'rating': 5,
             'review': 'Fascinating overview of human history from a unique perspective.',
-            'categories': ['Non-Fiction', 'History', 'Science'],
+            'shelves': ['Non-Fiction', 'History', 'Science'],
             'date_finished': datetime.now() - timedelta(days=15)
         },
         {
@@ -99,7 +99,7 @@ with app.app_context():
             'status': 'read',
             'rating': 5,
             'review': 'An incredibly fun and scientifically grounded space adventure!',
-            'categories': ['Science Fiction', 'Fiction'],
+            'shelves': ['Science Fiction', 'Fiction'],
             'date_finished': datetime.now() - timedelta(days=7)
         },
         {
@@ -111,7 +111,7 @@ with app.app_context():
             'status': 'read',
             'rating': 4,
             'review': 'A thoughtful exploration of choices and alternate lives.',
-            'categories': ['Fiction'],
+            'shelves': ['Fiction'],
             'date_finished': datetime.now() - timedelta(days=20)
         },
         {
@@ -123,7 +123,7 @@ with app.app_context():
             'status': 'read',
             'rating': 5,
             'review': 'A powerful memoir about education and self-invention.',
-            'categories': ['Non-Fiction', 'Biography'],
+            'shelves': ['Non-Fiction', 'Biography'],
             'date_finished': datetime.now() - timedelta(days=90)
         },
         {
@@ -135,7 +135,7 @@ with app.app_context():
             'status': 'to-read',
             'rating': None,
             'review': None,
-            'categories': ['Science Fiction', 'Fiction']
+            'shelves': ['Science Fiction', 'Fiction']
         },
         {
             'title': 'The Silent Patient',
@@ -146,7 +146,7 @@ with app.app_context():
             'status': 'read',
             'rating': 4,
             'review': 'A gripping psychological thriller with a shocking twist.',
-            'categories': ['Fiction', 'Mystery'],
+            'shelves': ['Fiction', 'Mystery'],
             'date_finished': datetime.now() - timedelta(days=50)
         },
     ]
@@ -180,16 +180,16 @@ with app.app_context():
             )
             db.session.add(review)
 
-        for cat_name in book_data.get('categories', []):
-            category = Category.query.filter_by(name=cat_name).first()
-            if category:
-                book_category = BookCategory(
+        for shelf_name in book_data.get('shelves', []):
+            shelf = Shelf.query.filter_by(name=shelf_name).first()
+            if shelf:
+                book_shelf = BookShelf(
                     book_id=book.id,
-                    category_id=category.id
+                    shelf_id=shelf.id
                 )
-                db.session.add(book_category)
+                db.session.add(book_shelf)
 
     db.session.commit()
     print(f"Successfully added {len(sample_books)} sample books!")
-    print(f"Created {len(categories)} categories!")
+    print(f"Created {len(shelves)} shelves!")
     print("\nYou can now run 'flask run' to start the application!")

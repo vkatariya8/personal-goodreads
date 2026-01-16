@@ -4,7 +4,15 @@
 
 {% block content %}
 <div class="max-w-7xl mx-auto">
-    <h1 class="text-4xl font-serif font-bold text-primary mb-8">Welcome to Your Library</h1>
+    <div class="flex justify-between items-center mb-8">
+        <h1 class="text-4xl font-serif font-bold text-primary">Welcome to Your Library</h1>
+        <a href="{{ url_for('books.add') }}" class="bg-primary text-white px-6 py-3 rounded-lg hover:bg-opacity-90 transition inline-flex items-center gap-2 shadow-md">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
+            </svg>
+            Add New Book
+        </a>
+    </div>
 
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
         <div class="bg-white rounded-lg shadow-md p-6">
@@ -27,7 +35,7 @@
         <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
             {% for book in stats.currently_reading %}
             <a href="{{ url_for('books.detail', book_id=book.id) }}" class="group">
-                <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition">
+                <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition" {% if book.shelves %}style="background: linear-gradient(rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.85)), {{ book.shelves[0].color }};"{% endif %}>
                     <img src="{{ book.cover_url }}" alt="{{ book.title }}"
                          class="w-full h-64 object-cover group-hover:scale-105 transition">
                     <div class="p-3">
@@ -47,7 +55,7 @@
         <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
             {% for book in stats.recently_added[:10] %}
             <a href="{{ url_for('books.detail', book_id=book.id) }}" class="group">
-                <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition">
+                <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition" {% if book.shelves %}style="background: linear-gradient(rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.85)), {{ book.shelves[0].color }};"{% endif %}>
                     <img src="{{ book.cover_url }}" alt="{{ book.title }}"
                          class="w-full h-64 object-cover group-hover:scale-105 transition">
                     <div class="p-3">

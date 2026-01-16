@@ -198,37 +198,37 @@
         </div>
     </div>
 
-    <!-- Categorization -->
+    <!-- Shelves -->
     <div class="mb-8">
-        <h2 class="text-2xl font-semibold mb-4">Reading by Category</h2>
+        <h2 class="text-2xl font-semibold mb-4">Reading by Shelf</h2>
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <!-- Top Categories -->
+            <!-- Top Shelves -->
             <div class="bg-white rounded-lg shadow-md p-6">
-                <h3 class="text-xl font-semibold mb-4">Top Categories</h3>
-                {% if stats.top_categories %}
+                <h3 class="text-xl font-semibold mb-4">Top Shelves</h3>
+                {% if stats.top_shelves %}
                 <div class="space-y-3">
-                    {% for cat in stats.top_categories %}
+                    {% for shelf in stats.top_shelves %}
                     <div class="flex items-center justify-between">
                         <div class="flex items-center">
-                            <span class="w-4 h-4 rounded-full mr-3" style="background-color: {{ cat.color }}"></span>
-                            <span class="text-gray-700">{{ cat.name }}</span>
+                            <span class="w-4 h-4 rounded-full mr-3" style="background-color: {{ shelf.color }}"></span>
+                            <span class="text-gray-700">{{ shelf.name }}</span>
                         </div>
-                        <span class="font-semibold text-gray-600">{{ cat.count }} books</span>
+                        <span class="font-semibold text-gray-600">{{ shelf.count }} books</span>
                     </div>
                     {% endfor %}
                 </div>
                 {% else %}
-                <p class="text-gray-500 text-center py-8">No categories yet</p>
+                <p class="text-gray-500 text-center py-8">No shelves yet</p>
                 {% endif %}
             </div>
 
-            <!-- Category Breakdown Chart -->
+            <!-- Shelf Breakdown Chart -->
             <div class="bg-white rounded-lg shadow-md p-6">
-                <h3 class="text-xl font-semibold mb-4">Category Distribution</h3>
-                {% if stats.category_chart_data %}
-                <canvas id="categoryChart" height="200"></canvas>
+                <h3 class="text-xl font-semibold mb-4">Shelf Distribution</h3>
+                {% if stats.shelf_chart_data %}
+                <canvas id="shelfChart" height="200"></canvas>
                 {% else %}
-                <p class="text-gray-500 text-center py-8">No categories yet</p>
+                <p class="text-gray-500 text-center py-8">No shelves yet</p>
                 {% endif %}
             </div>
         </div>
@@ -599,16 +599,16 @@ new Chart(ratingTrendsCtx, {
 });
 {% endif %}
 
-{% if stats.category_chart_data %}
-// Category Breakdown Chart
-const categoryCtx = document.getElementById('categoryChart').getContext('2d');
-new Chart(categoryCtx, {
+{% if stats.shelf_chart_data %}
+// Shelf Breakdown Chart
+const shelfCtx = document.getElementById('shelfChart').getContext('2d');
+new Chart(shelfCtx, {
     type: 'doughnut',
     data: {
-        labels: {{ stats.category_chart_data | map(attribute='name') | list | tojson }},
+        labels: {{ stats.shelf_chart_data | map(attribute='name') | list | tojson }},
         datasets: [{
-            data: {{ stats.category_chart_data | map(attribute='count') | list | tojson }},
-            backgroundColor: {{ stats.category_chart_data | map(attribute='color') | list | tojson }},
+            data: {{ stats.shelf_chart_data | map(attribute='count') | list | tojson }},
+            backgroundColor: {{ stats.shelf_chart_data | map(attribute='color') | list | tojson }},
             borderWidth: 0
         }]
     },

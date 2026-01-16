@@ -6,7 +6,7 @@ from models import db
 from models.book import Book
 from models.reading_record import ReadingRecord
 from models.review import Review
-from models.category import Category, BookCategory
+from models.shelf import Shelf, BookShelf
 
 
 @dataclass
@@ -67,7 +67,7 @@ class GoodreadsImporter:
 
                 self.create_reading_record(book, row)
                 self.create_review(book, row)
-                self.process_categories(book, row.get('Bookshelves', ''))
+                self.process_shelves(book, row.get('Bookshelves', ''))
 
                 self.results.imported.append(book)
 
@@ -182,33 +182,33 @@ class GoodreadsImporter:
         self.db.add(review)
         return review
 
-    def process_categories(self, book: Book, shelves: str) -> List[BookCategory]:
-        """Parse Bookshelves column and create/link categories."""
+    def process_shelves(self, book: Book, shelves: str) -> List[BookShelf]:
+        """Parse Bookshelves column and create/link shelves."""
         if pd.isna(shelves) or not shelves:
             return []
 
         shelf_names = [s.strip() for s in str(shelves).split(',') if s.strip()]
-        book_categories = []
+        book_shelves = []
 
         for position, shelf_name in enumerate(shelf_names):
             if shelf_name.lower() in ('read', 'currently-reading', 'to-read'):
                 continue
 
-            category = Category.query.filter_by(name=shelf_name).first()
-            if not category:
-                category = Category(name=shelf_name)
-                self.db.add(category)
+            shelf = Shelf.query.filter_by(name=shelf_name).first()
+            if not shelf:
+                shelf = Shelf(name=shelf_name)
+                self.db.add(shelf)
                 self.db.flush()
 
-            book_category = BookCategory(
+            book_shelf = BookShelf(
                 book_id=book.id,
-                category_id=category.id,
+                shelf_id=shelf.id,
                 position=position,
             )
-            self.db.add(book_category)
-            book_categories.append(book_category)
+            self.db.add(book_shelf)
+            book_shelves.append(book_shelf)
 
-        return book_categories
+        return book_shelves
 
     def parse_int(self, value) -> Optional[int]:
         """Safely parse integer value."""

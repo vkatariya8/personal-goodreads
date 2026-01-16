@@ -2,7 +2,7 @@ from flask import Blueprint, render_template
 from sqlalchemy import func, extract
 from datetime import datetime, timedelta
 from collections import defaultdict
-from models import db, Book, ReadingRecord, Review, Category, BookCategory
+from models import db, Book, ReadingRecord, Review, Shelf, BookShelf
 
 bp = Blueprint('stats', __name__, url_prefix='/stats')
 
@@ -202,25 +202,25 @@ def index():
         pages_data.append({'month': month_name, 'pages': int(pages) if pages else 0})
     stats['pages_by_month'] = pages_data
 
-    # Top categories
-    top_categories = db.session.query(
-        Category.name,
-        Category.color,
-        func.count(BookCategory.id).label('count')
-    ).join(BookCategory).group_by(Category.id).order_by(func.count(BookCategory.id).desc()).limit(10).all()
-    stats['top_categories'] = [{'name': name, 'color': color, 'count': count} for name, color, count in top_categories]
+    # Top shelves
+    top_shelves = db.session.query(
+        Shelf.name,
+        Shelf.color,
+        func.count(BookShelf.id).label('count')
+    ).join(BookShelf).group_by(Shelf.id).order_by(func.count(BookShelf.id).desc()).limit(10).all()
+    stats['top_shelves'] = [{'name': name, 'color': color, 'count': count} for name, color, count in top_shelves]
 
-    # Category breakdown for chart (all categories with read counts)
-    category_breakdown = db.session.query(
-        Category.name,
-        Category.color,
-        func.count(BookCategory.id).label('total_count')
-    ).join(BookCategory).group_by(Category.id).order_by(
-        func.count(BookCategory.id).desc()
+    # Shelf breakdown for chart (all shelves with read counts)
+    shelf_breakdown = db.session.query(
+        Shelf.name,
+        Shelf.color,
+        func.count(BookShelf.id).label('total_count')
+    ).join(BookShelf).group_by(Shelf.id).order_by(
+        func.count(BookShelf.id).desc()
     ).all()
-    stats['category_chart_data'] = [
+    stats['shelf_chart_data'] = [
         {'name': name, 'color': color, 'count': count}
-        for name, color, count in category_breakdown
+        for name, color, count in shelf_breakdown
     ]
 
     # Top authors (by books read)

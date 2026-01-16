@@ -74,6 +74,32 @@
                             {{ form.year_published(class="w-32 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent", type="number") }}
                         </div>
                     </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">{{ form.shelves.label.text }}</label>
+
+                        <!-- Selected shelves as chips -->
+                        <div id="selected-shelves" class="flex flex-wrap gap-2 mb-2 min-h-[2rem]"></div>
+
+                        <!-- Search input -->
+                        <div class="relative">
+                            <input type="text" id="shelf-search"
+                                   placeholder="Type to search shelves..."
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                                   autocomplete="off">
+
+                            <!-- Dropdown -->
+                            <div id="shelf-dropdown" class="hidden absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
+                                <div id="shelf-options"></div>
+                                <div id="no-results" class="hidden px-3 py-2 text-sm text-gray-500">No shelves found</div>
+                            </div>
+                        </div>
+
+                        <!-- Hidden inputs for form submission -->
+                        <div id="shelf-hidden-inputs"></div>
+
+                        <p class="text-xs text-gray-500 mt-1">Type to search, use ↑↓ arrow keys to navigate, Enter to select, Esc to close</p>
+                    </div>
                 </div>
 
                 <div class="border-b pb-6">
@@ -144,6 +170,195 @@
 {% endblock %}
 
 {% block extra_js %}
+<script>
+// Shelf selector with search/filter
+(function() {
+    // Available shelves from the form
+    const shelves = [
+        {% for value, label in form.shelves.choices %}
+        { id: '{{ value }}', name: '{{ label }}' }{% if not loop.last %},{% endif %}
+        {% endfor %}
+    ];
+
+    // Pre-selected shelves
+    const preSelected = [
+        {% if form.shelves.data %}
+            {% for shelf_id in form.shelves.data %}
+            '{{ shelf_id }}'{% if not loop.last %},{% endif %}
+            {% endfor %}
+        {% endif %}
+    ];
+
+    const selectedShelves = new Set(preSelected);
+    const searchInput = document.getElementById('shelf-search');
+    const dropdown = document.getElementById('shelf-dropdown');
+    const optionsContainer = document.getElementById('shelf-options');
+    const noResults = document.getElementById('no-results');
+    const selectedContainer = document.getElementById('selected-shelves');
+    const hiddenInputsContainer = document.getElementById('shelf-hidden-inputs');
+
+    let filteredShelves = [];
+    let highlightedIndex = -1;
+
+    // Initialize with pre-selected shelves
+    preSelected.forEach(shelfId => {
+        const shelf = shelves.find(s => s.id === shelfId);
+        if (shelf) {
+            addShelfChip(shelf);
+        }
+    });
+
+    // Show dropdown on focus
+    searchInput.addEventListener('focus', function() {
+        filterShelves('');
+        dropdown.classList.remove('hidden');
+    });
+
+    // Hide dropdown when clicking outside
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('#shelf-search') && !e.target.closest('#shelf-dropdown')) {
+            dropdown.classList.add('hidden');
+        }
+    });
+
+    // Filter as user types
+    searchInput.addEventListener('input', function(e) {
+        filterShelves(e.target.value);
+    });
+
+    // Keyboard navigation
+    searchInput.addEventListener('keydown', function(e) {
+        if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            if (highlightedIndex < filteredShelves.length - 1) {
+                highlightedIndex++;
+                updateHighlight();
+            }
+        } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            if (highlightedIndex > 0) {
+                highlightedIndex--;
+                updateHighlight();
+            }
+        } else if (e.key === 'Enter') {
+            e.preventDefault();
+            if (highlightedIndex >= 0 && highlightedIndex < filteredShelves.length) {
+                selectShelf(filteredShelves[highlightedIndex]);
+            }
+        } else if (e.key === 'Escape') {
+            dropdown.classList.add('hidden');
+            searchInput.blur();
+        }
+    });
+
+    function filterShelves(query) {
+        const lowerQuery = query.toLowerCase();
+        filteredShelves = shelves.filter(shelf =>
+            !selectedShelves.has(shelf.id) &&
+            shelf.name.toLowerCase().includes(lowerQuery)
+        );
+
+        highlightedIndex = filteredShelves.length > 0 ? 0 : -1;
+        optionsContainer.innerHTML = '';
+
+        if (filteredShelves.length === 0) {
+            noResults.classList.remove('hidden');
+            optionsContainer.classList.add('hidden');
+        } else {
+            noResults.classList.add('hidden');
+            optionsContainer.classList.remove('hidden');
+
+            filteredShelves.forEach((shelf, index) => {
+                const option = document.createElement('div');
+                option.className = 'px-3 py-2 cursor-pointer text-sm';
+                option.textContent = shelf.name;
+                option.dataset.index = index;
+
+                if (index === highlightedIndex) {
+                    option.classList.add('bg-primary', 'text-white');
+                } else {
+                    option.classList.add('hover:bg-gray-100');
+                }
+
+                option.addEventListener('click', function() {
+                    selectShelf(shelf);
+                });
+
+                option.addEventListener('mouseenter', function() {
+                    highlightedIndex = index;
+                    updateHighlight();
+                });
+
+                optionsContainer.appendChild(option);
+            });
+        }
+    }
+
+    function updateHighlight() {
+        const options = optionsContainer.querySelectorAll('div');
+        options.forEach((option, index) => {
+            if (index === highlightedIndex) {
+                option.classList.remove('hover:bg-gray-100');
+                option.classList.add('bg-primary', 'text-white');
+                option.scrollIntoView({ block: 'nearest' });
+            } else {
+                option.classList.remove('bg-primary', 'text-white');
+                option.classList.add('hover:bg-gray-100');
+            }
+        });
+    }
+
+    function selectShelf(shelf) {
+        selectedShelves.add(shelf.id);
+        addShelfChip(shelf);
+        searchInput.value = '';
+        filterShelves('');
+        searchInput.focus();
+    }
+
+    function addShelfChip(shelf) {
+        // Add visual chip
+        const chip = document.createElement('span');
+        chip.className = 'inline-flex items-center px-3 py-1 rounded-full text-sm bg-primary text-white';
+        chip.innerHTML = `
+            ${shelf.name}
+            <button type="button" class="ml-2 hover:text-gray-200" data-shelf-id="${shelf.id}">
+                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                </svg>
+            </button>
+        `;
+        chip.querySelector('button').addEventListener('click', function() {
+            removeShelf(shelf.id);
+        });
+        selectedContainer.appendChild(chip);
+
+        // Add hidden input for form submission
+        const hidden = document.createElement('input');
+        hidden.type = 'hidden';
+        hidden.name = 'shelves';
+        hidden.value = shelf.id;
+        hidden.id = `shelf-hidden-${shelf.id}`;
+        hiddenInputsContainer.appendChild(hidden);
+    }
+
+    function removeShelf(shelfId) {
+        selectedShelves.delete(shelfId);
+
+        // Remove chip
+        const chip = selectedContainer.querySelector(`button[data-shelf-id="${shelfId}"]`).closest('span');
+        if (chip) chip.remove();
+
+        // Remove hidden input
+        const hidden = document.getElementById(`shelf-hidden-${shelfId}`);
+        if (hidden) hidden.remove();
+
+        // Refresh dropdown
+        filterShelves(searchInput.value);
+    }
+})();
+</script>
+
 {% if is_edit %}
 <script>
 function confirmDelete() {

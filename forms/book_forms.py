@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, IntegerField, TextAreaField, SelectField, DateField
+from wtforms import StringField, IntegerField, TextAreaField, SelectField, SelectMultipleField, DateField
 from wtforms.validators import DataRequired, Optional, Length, NumberRange
 
 
@@ -24,6 +24,8 @@ class BookForm(FlaskForm):
     ], validators=[Optional()])
     pages = IntegerField('Pages', validators=[Optional(), NumberRange(min=1)])
     year_published = IntegerField('Year Published', validators=[Optional(), NumberRange(min=1000, max=2100)])
+
+    shelves = SelectMultipleField('Shelves', choices=[], validators=[Optional()])
 
     status = SelectField('Reading Status', choices=[
         ('to-read', 'To Read'),

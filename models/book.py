@@ -31,7 +31,7 @@ class Book(db.Model):
 
     reading_record = db.relationship('ReadingRecord', backref='book', uselist=False, cascade='all, delete-orphan')
     review = db.relationship('Review', backref='book', uselist=False, cascade='all, delete-orphan')
-    book_categories = db.relationship('BookCategory', backref='book', cascade='all, delete-orphan')
+    book_shelves = db.relationship('BookShelf', backref='book', cascade='all, delete-orphan')
 
     def __repr__(self):
         return f'<Book {self.id}: {self.title} by {self.author}>'
@@ -73,5 +73,5 @@ class Book(db.Model):
         return None
 
     @property
-    def categories(self):
-        return [bc.category for bc in self.book_categories]
+    def shelves(self):
+        return [bs.shelf for bs in self.book_shelves]

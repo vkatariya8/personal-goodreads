@@ -2,35 +2,35 @@ from datetime import datetime
 from models import db
 
 
-class Category(db.Model):
-    __tablename__ = 'categories'
+class Shelf(db.Model):
+    __tablename__ = 'shelves'
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), unique=True, nullable=False, index=True)
     color = db.Column(db.String(7), default='#3498DB')
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
-    book_categories = db.relationship('BookCategory', backref='category', cascade='all, delete-orphan')
+    book_shelves = db.relationship('BookShelf', backref='shelf', cascade='all, delete-orphan')
 
     def __repr__(self):
-        return f'<Category {self.id}: {self.name}>'
+        return f'<Shelf {self.id}: {self.name}>'
 
     @property
     def book_count(self):
-        return len(self.book_categories)
+        return len(self.book_shelves)
 
 
-class BookCategory(db.Model):
-    __tablename__ = 'book_categories'
+class BookShelf(db.Model):
+    __tablename__ = 'book_shelves'
 
     id = db.Column(db.Integer, primary_key=True)
     book_id = db.Column(db.Integer, db.ForeignKey('books.id'), nullable=False)
-    category_id = db.Column(db.Integer, db.ForeignKey('categories.id'), nullable=False)
+    shelf_id = db.Column(db.Integer, db.ForeignKey('shelves.id'), nullable=False)
     position = db.Column(db.Integer, nullable=True)
 
     __table_args__ = (
-        db.UniqueConstraint('book_id', 'category_id', name='unique_book_category'),
+        db.UniqueConstraint('book_id', 'shelf_id', name='unique_book_shelf'),
     )
 
     def __repr__(self):
-        return f'<BookCategory {self.id}: Book {self.book_id} - Category {self.category_id}>'
+        return f'<BookShelf {self.id}: Book {self.book_id} - Shelf {self.shelf_id}>'

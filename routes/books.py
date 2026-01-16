@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, current_app
-from models import db, Book, ReadingRecord, Review, Category, BookCategory
+from models import db, Book, ReadingRecord, Review, Shelf, BookShelf
 from forms.book_forms import BookForm
 from sqlalchemy import or_
 
@@ -43,9 +43,9 @@ def library():
     if rating_filter:
         query = query.join(Review).filter(Review.rating == rating_filter)
 
-    category_filter = request.args.get('category', type=int)
-    if category_filter:
-        query = query.join(BookCategory).filter(BookCategory.category_id == category_filter)
+    shelf_filter = request.args.get('shelf', type=int)
+    if shelf_filter:
+        query = query.join(BookShelf).filter(BookShelf.shelf_id == shelf_filter)
 
     # Sort with direction
     sort_by = request.args.get('sort', 'date_added')
@@ -75,17 +75,17 @@ def library():
     pagination = query.paginate(page=page, per_page=per_page, error_out=False)
     books = pagination.items
 
-    all_categories = Category.query.order_by(Category.name).all()
+    all_shelves = Shelf.query.order_by(Shelf.name).all()
 
     return render_template(
         'library/index.html',
         books=books,
         pagination=pagination,
-        categories=all_categories,
+        shelves=all_shelves,
         search=search,
         status_filter=status_filter,
         rating_filter=rating_filter,
-        category_filter=category_filter,
+        shelf_filter=shelf_filter,
         sort_by=sort_by,
         order=order,
         per_page=per_page,
@@ -103,6 +103,10 @@ def detail(book_id):
 @bp.route('/add', methods=['GET', 'POST'])
 def add():
     form = BookForm()
+
+    # Populate shelf choices
+    all_shelves = Shelf.query.order_by(Shelf.name).all()
+    form.shelves.choices = [(str(s.id), s.name) for s in all_shelves]
 
     if form.validate_on_submit():
         book = Book(
@@ -137,6 +141,16 @@ def add():
             )
             db.session.add(review)
 
+        # Process selected shelves
+        if form.shelves.data:
+            for position, shelf_id in enumerate(form.shelves.data):
+                book_shelf = BookShelf(
+                    book_id=book.id,
+                    shelf_id=int(shelf_id),
+                    position=position
+                )
+                db.session.add(book_shelf)
+
         db.session.commit()
         flash(f'"{book.title}" has been added to your library.', 'success')
         return redirect(url_for('books.detail', book_id=book.id))
@@ -149,7 +163,13 @@ def edit(book_id):
     book = Book.query.get_or_404(book_id)
     form = BookForm(obj=book)
 
+    # Populate shelf choices
+    all_shelves = Shelf.query.order_by(Shelf.name).all()
+    form.shelves.choices = [(str(s.id), s.name) for s in all_shelves]
+
     if request.method == 'GET':
+        # Pre-populate existing shelves
+        form.shelves.data = [str(bs.shelf_id) for bs in book.book_shelves]
         if book.reading_record:
             form.status.data = book.reading_record.status
             form.date_started.data = book.reading_record.date_started
@@ -197,6 +217,17 @@ def edit(book_id):
                 private_notes=form.private_notes.data or None,
             )
             db.session.add(review)
+
+        # Update shelves - remove old ones and add new ones
+        BookShelf.query.filter_by(book_id=book.id).delete()
+        if form.shelves.data:
+            for position, shelf_id in enumerate(form.shelves.data):
+                book_shelf = BookShelf(
+                    book_id=book.id,
+                    shelf_id=int(shelf_id),
+                    position=position
+                )
+                db.session.add(book_shelf)
 
         db.session.commit()
         flash(f'"{book.title}" has been updated.', 'success')

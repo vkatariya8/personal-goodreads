@@ -17,12 +17,13 @@ def create_app(config_class=Config):
     migrate.init_app(app, db)
     csrf.init_app(app)
 
-    from routes import main, books, stats, import_routes, api
+    from routes import main, books, stats, import_routes, api, shelves
     app.register_blueprint(main.bp)
     app.register_blueprint(books.bp)
     app.register_blueprint(stats.bp)
     app.register_blueprint(import_routes.bp)
     app.register_blueprint(api.bp)
+    app.register_blueprint(shelves.bp)
 
     os.makedirs(app.config['UPLOAD_FOLDER'] / 'originals', exist_ok=True)
     os.makedirs(app.config['UPLOAD_FOLDER'] / 'thumbnails', exist_ok=True)
