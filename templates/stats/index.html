@@ -438,7 +438,7 @@ new Chart(yearlyCtx, {
             label: 'Books Read',
             data: {{ stats.yearly_comparison | map(attribute='count') | list | tojson }},
             backgroundColor: 'rgba(139, 69, 19, 0.1)',
-            borderColor: '#00f',
+            borderColor: '#14b8a6',
             borderWidth: 2,
             fill: true,
             tension: 0.3
@@ -473,7 +473,7 @@ new Chart(booksCtx, {
         datasets: [{
             label: 'Books Read',
             data: {{ stats.books_by_month | map(attribute='count') | list | tojson }},
-            backgroundColor: '#00f',
+            backgroundColor: '#14b8a6',
             borderRadius: 4,
         }]
     },
@@ -636,7 +636,7 @@ new Chart(publishersCtx, {
         datasets: [{
             label: 'Books',
             data: {{ stats.top_publishers | map(attribute='count') | list | tojson }},
-            backgroundColor: '#00f',
+            backgroundColor: '#14b8a6',
             borderRadius: 4,
         }]
     },
@@ -703,7 +703,7 @@ new Chart(pageLengthCtx, {
         datasets: [{
             label: 'Books',
             data: {{ stats.page_count_buckets | map(attribute='count') | list | tojson }},
-            backgroundColor: '#00f',
+            backgroundColor: '#14b8a6',
             borderRadius: 4,
         }]
     },
