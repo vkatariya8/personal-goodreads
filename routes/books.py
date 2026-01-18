@@ -29,6 +29,9 @@ def library():
 
     query = Book.query
 
+    # Track which tables have been joined to avoid double joins
+    joined_tables = set()
+
     search = request.args.get('search', '').strip()
     if search:
         query = query.filter(
@@ -43,14 +46,17 @@ def library():
     status_filter = request.args.get('status')
     if status_filter:
         query = query.join(ReadingRecord).filter(ReadingRecord.status == status_filter)
+        joined_tables.add('ReadingRecord')
 
     rating_filter = request.args.get('rating', type=int)
     if rating_filter:
         query = query.join(Review).filter(Review.rating == rating_filter)
+        joined_tables.add('Review')
 
     shelf_filter = request.args.get('shelf', type=int)
     if shelf_filter:
         query = query.join(BookShelf).filter(BookShelf.shelf_id == shelf_filter)
+        joined_tables.add('BookShelf')
 
     # Sort with direction
     sort_by = request.args.get('sort', 'date_added')
@@ -65,11 +71,15 @@ def library():
     elif sort_by == 'date_added':
         query = query.order_by(Book.date_added.asc() if order == 'asc' else Book.date_added.desc())
     elif sort_by == 'date_read':
-        query = query.outerjoin(ReadingRecord).order_by(
+        if 'ReadingRecord' not in joined_tables:
+            query = query.outerjoin(ReadingRecord)
+        query = query.order_by(
             ReadingRecord.date_finished.asc() if order == 'asc' else ReadingRecord.date_finished.desc()
         )
     elif sort_by == 'rating':
-        query = query.outerjoin(Review).order_by(
+        if 'Review' not in joined_tables:
+            query = query.outerjoin(Review)
+        query = query.order_by(
             Review.rating.asc() if order == 'asc' else Review.rating.desc()
         )
     elif sort_by == 'pages':

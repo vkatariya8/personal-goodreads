@@ -4,8 +4,8 @@
 
 {% block content %}
 <div class="max-w-7xl mx-auto">
-    <div class="flex justify-between items-center mb-8">
-        <h1 class="text-4xl font-bold tracking-tight text-gray-900 dark:text-white">Library</h1>
+    <div class="flex justify-between items-center mb-10">
+        <h1 class="text-5xl font-bold tracking-wide bg-gradient-to-r from-gray-900 to-gray-700 dark:from-white dark:to-gray-300 bg-clip-text text-transparent">Library</h1>
         <div class="flex items-center space-x-4">
             <!-- View Toggle -->
             <div class="flex bg-white dark:bg-gray-800 rounded-md shadow-sm border border-gray-200 dark:border-gray-700">
@@ -25,13 +25,13 @@
                 </button>
             </div>
             <a href="{{ url_for('books.add') }}"
-               class="bg-primary text-white px-6 py-2.5 rounded-md font-medium tracking-wide hover:brightness-90 transition-all duration-150">
+               class="bg-primary text-white px-6 py-2.5 rounded-lg font-medium tracking-wide hover:brightness-110 hover:shadow-lg hover:shadow-primary/30 transition-all duration-200">
                 + Add Book
             </a>
         </div>
     </div>
 
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6 mb-8">
+    <div class="bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 mb-10">
         <form method="get" id="filter-form" class="space-y-4">
             <input type="hidden" name="view" id="view-input" value="{{ view }}">
             <div class="grid grid-cols-2 md:grid-cols-6 gap-4">
@@ -120,24 +120,27 @@
     {% if books %}
     <!-- Grid View -->
     <div id="grid-container" class="{% if view == 'list' %}hidden{% endif %}">
-        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
             {% for book in books %}
             <a href="{{ url_for('books.detail', book_id=book.id) }}" class="group">
-                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-md transition-all duration-150">
-                    <img src="{{ book.cover_url }}" alt="{{ book.title }}"
-                         class="w-full h-56 object-cover group-hover:scale-105 transition-transform duration-300">
-                    <div class="p-3">
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-xl hover:ring-2 hover:ring-primary/20 hover:scale-[1.02] transition-all duration-300">
+                    <div class="relative overflow-hidden">
+                        <img src="{{ book.cover_url }}" alt="{{ book.title }}"
+                             class="w-full h-56 object-cover group-hover:scale-110 transition-transform duration-500">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    </div>
+                    <div class="p-4">
                         <h3 class="font-semibold text-sm truncate mb-1 text-gray-900 dark:text-white">{{ book.title }}</h3>
                         <p class="text-xs text-gray-600 dark:text-gray-400 truncate mb-2">{{ book.display_author }}</p>
 
                         {% if book.rating %}
-                        <div class="star-rating text-xs mb-1">
+                        <div class="star-rating text-xs mb-2">
                             {% for i in range(book.rating) %}★{% endfor %}{% for i in range(5 - book.rating) %}☆{% endfor %}
                         </div>
                         {% endif %}
 
                         {% if book.status %}
-                        <span class="inline-block px-2.5 py-1 text-xs font-medium rounded-md border
+                        <span class="inline-block px-2.5 py-1 text-xs font-medium rounded-lg border
                             {% if book.status == 'read' %}bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 border-green-200 dark:border-green-800
                             {% elif book.status == 'currently-reading' %}bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 border-blue-200 dark:border-blue-800
                             {% else %}bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300 border-gray-200 dark:border-gray-600{% endif %}">
@@ -153,12 +156,12 @@
 
     <!-- List View -->
     <div id="list-container" class="{% if view == 'grid' %}hidden{% endif %}">
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
             {% for book in books %}
             <a href="{{ url_for('books.detail', book_id=book.id) }}"
-               class="flex items-center p-4 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-150 border-b border-gray-200 dark:border-gray-700 last:border-b-0">
+               class="flex items-center p-5 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-all duration-200 border-b border-gray-200 dark:border-gray-700 last:border-b-0 group">
                 <img src="{{ book.cover_url }}" alt="{{ book.title }}"
-                     class="w-12 h-18 object-cover rounded shadow-sm flex-shrink-0">
+                     class="w-12 h-18 object-cover rounded-lg shadow-sm flex-shrink-0 group-hover:shadow-md transition-shadow duration-200">
                 <div class="ml-4 flex-1 min-w-0">
                     <h3 class="font-semibold text-gray-900 dark:text-white truncate">{{ book.title }}</h3>
                     <p class="text-sm text-gray-600 dark:text-gray-400 truncate">{{ book.display_author }}</p>
@@ -172,7 +175,7 @@
                     <div class="w-20 text-sm text-gray-400 dark:text-gray-500">Not rated</div>
                     {% endif %}
 
-                    <span class="inline-block px-2.5 py-1 text-xs font-medium rounded-md w-28 text-center border
+                    <span class="inline-block px-3 py-1.5 text-xs font-medium rounded-lg w-32 text-center border
                         {% if book.status == 'read' %}bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 border-green-200 dark:border-green-800
                         {% elif book.status == 'currently-reading' %}bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 border-blue-200 dark:border-blue-800
                         {% else %}bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300 border-gray-200 dark:border-gray-600{% endif %}">
@@ -197,14 +200,14 @@
     </div>
 
     {% if pagination.pages > 1 %}
-    <div class="flex items-center justify-between mt-8">
-        <p class="text-sm text-gray-600 dark:text-gray-400">
+    <div class="flex items-center justify-between mt-10">
+        <p class="text-sm font-medium text-gray-600 dark:text-gray-400">
             Showing {{ (pagination.page - 1) * per_page + 1 }}-{{ pagination.page * per_page if pagination.page * per_page < pagination.total else pagination.total }} of {{ pagination.total }} books
         </p>
         <div class="flex space-x-2">
             {% if pagination.has_prev %}
             <a href="{{ url_for('books.library', page=pagination.prev_num, search=search, status=status_filter, rating=rating_filter, shelf=shelf_filter, sort=sort_by, order=order, per_page=per_page, view=view) }}"
-               class="px-4 py-2 bg-white dark:bg-gray-800 rounded-md shadow-sm border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-150 text-sm text-gray-700 dark:text-gray-300">
+               class="px-4 py-2 bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 hover:shadow-md transition-all duration-200 text-sm font-medium text-gray-700 dark:text-gray-300">
                 Previous
             </a>
             {% endif %}
@@ -212,7 +215,7 @@
             {% for page_num in pagination.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
                 {% if page_num %}
                     <a href="{{ url_for('books.library', page=page_num, search=search, status=status_filter, rating=rating_filter, shelf=shelf_filter, sort=sort_by, order=order, per_page=per_page, view=view) }}"
-                       class="px-4 py-2 rounded-md shadow-sm border text-sm transition-all duration-150 {% if page_num == pagination.page %}bg-primary text-white border-primary{% else %}bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700{% endif %}">
+                       class="px-4 py-2 rounded-lg shadow-sm border text-sm font-medium transition-all duration-200 {% if page_num == pagination.page %}bg-primary text-white border-primary shadow-md{% else %}bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 hover:shadow-md{% endif %}">
                         {{ page_num }}
                     </a>
                 {% else %}
@@ -222,7 +225,7 @@
 
             {% if pagination.has_next %}
             <a href="{{ url_for('books.library', page=pagination.next_num, search=search, status=status_filter, rating=rating_filter, shelf=shelf_filter, sort=sort_by, order=order, per_page=per_page, view=view) }}"
-               class="px-4 py-2 bg-white dark:bg-gray-800 rounded-md shadow-sm border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-150 text-sm text-gray-700 dark:text-gray-300">
+               class="px-4 py-2 bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 hover:shadow-md transition-all duration-200 text-sm font-medium text-gray-700 dark:text-gray-300">
                 Next
             </a>
             {% endif %}

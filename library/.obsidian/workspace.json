@@ -11,13 +11,14 @@
             "id": "a2e5c9984c241c15",
             "type": "leaf",
             "state": {
-              "type": "bases",
+              "type": "markdown",
               "state": {
-                "file": "Untitled.base",
-                "viewName": "Table"
+                "file": "books/a-man-called-ove.md",
+                "mode": "source",
+                "source": false
               },
-              "icon": "lucide-table",
-              "title": "Untitled"
+              "icon": "lucide-file",
+              "title": "a-man-called-ove"
             }
           }
         ]
@@ -184,14 +185,25 @@
   },
   "active": "a2e5c9984c241c15",
   "lastOpenFiles": [
-    "Untitled 1.base",
+    "books/a-mind-at-play-how-claude-shannon-invented-the-information-age.md",
+    "books/a-closed-and-common-orbit-wayfarers-2.md",
+    "books/a-crown-of-swords-the-wheel-of-time-7.md",
+    "books/1984.md",
+    "books/100-nasty-women-of-history.md",
+    "books/a-baker-s-year-twelve-months-of-baking-and-living-the-simple-life-at-the-smoke-signals-bakery.md",
+    "books/a-deepness-in-the-sky-zones-of-thought-2.md",
+    "books/a-little-piece-of-earth-how-to-grow-your-own-food-in-small-spaces.md",
+    "books/a-flag-for-sunrise.md",
+    "books/cetaganda-vorkosigan-saga-9.md",
+    "books/a-man-without-a-country.md",
     "Untitled.base",
+    "books/2001-a-space-odyssey-space-odyssey-1.md",
+    "books/around-india-in-80-trains.md",
+    "Untitled 1.base",
     "books/blindsight-firefall-1.md",
     "books/a-sense-of-where-you-are-bill-bradley-at-princeton.md",
-    "books/a-deepness-in-the-sky-zones-of-thought-2.md",
     "books/small-things-like-these.md",
     "books/the-warrior-s-apprentice-vorkosigan-saga-2.md",
-    "books/the-decagon-house-murders-house-murders-1.md",
-    "books/cetaganda-vorkosigan-saga-9.md"
+    "books/the-decagon-house-murders-house-murders-1.md"
   ]
 }

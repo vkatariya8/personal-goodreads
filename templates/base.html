@@ -85,8 +85,8 @@
     {% block extra_head %}{% endblock %}
 </head>
 <body class="bg-gray-50 dark:bg-gray-900 font-sans text-gray-900 dark:text-gray-100">
-    <nav class="bg-gray-900 text-white shadow-sm border-b border-gray-800">
-        <div class="container mx-auto px-4">
+    <nav class="sticky top-0 z-50 backdrop-blur-md bg-gray-900/95 text-white shadow-sm border-b border-gray-800" id="main-nav">
+        <div class="container mx-auto px-6">
             <div class="flex items-center justify-between h-16">
                 <div class="flex items-center space-x-8">
                     <a href="{{ url_for('main.index') }}" class="text-xl font-bold tracking-tight hover:text-primary transition-colors duration-150">
@@ -114,7 +114,7 @@
 
                     <form action="{{ url_for('books.library') }}" method="get" class="hidden md:block">
                         <input type="text" name="search" placeholder="Search books..."
-                               class="px-4 py-2 rounded-md bg-gray-800 border border-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-150"
+                               class="px-5 py-2.5 rounded-lg bg-gray-800 border border-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary focus:shadow-lg focus:shadow-primary/20 transition-all duration-200 w-64"
                                value="{{ request.args.get('search', '') }}">
                     </form>
                 </div>
@@ -124,7 +124,7 @@
 
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
-            <div class="container mx-auto px-4 mt-4">
+            <div class="container mx-auto px-6 mt-4">
                 {% for category, message in messages %}
                     <div class="p-4 rounded-md mb-2 border animate-fade-in
                         {% if category == 'error' %}bg-red-50 dark:bg-red-900/20 text-red-800 dark:text-red-200 border-red-200 dark:border-red-800
@@ -137,12 +137,12 @@
         {% endif %}
     {% endwith %}
 
-    <main class="container mx-auto px-4 py-8">
+    <main class="container mx-auto px-6 py-12">
         {% block content %}{% endblock %}
     </main>
 
-    <footer class="bg-gray-900 text-white mt-16 py-6 border-t border-gray-800">
-        <div class="container mx-auto px-4 text-center">
+    <footer class="bg-gray-900 text-white mt-20 py-8 border-t border-gray-800">
+        <div class="container mx-auto px-6 text-center">
             <p class="text-sm text-gray-400">
                 My Personal Library |
                 {% if stats is defined and stats.total_books is defined %}
