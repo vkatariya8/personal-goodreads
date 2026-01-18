@@ -1,0 +1,197 @@
+{
+  "main": {
+    "id": "0cf000d9144e4f24",
+    "type": "split",
+    "children": [
+      {
+        "id": "3f2e6c39d8e1ec4d",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "a2e5c9984c241c15",
+            "type": "leaf",
+            "state": {
+              "type": "bases",
+              "state": {
+                "file": "Untitled.base",
+                "viewName": "Table"
+              },
+              "icon": "lucide-table",
+              "title": "Untitled"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "56c18752ddc90f11",
+    "type": "split",
+    "children": [
+      {
+        "id": "48607112635c6285",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "1eb08f13f048d975",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical",
+                "autoReveal": false
+              },
+              "icon": "lucide-folder-closed",
+              "title": "Files"
+            }
+          },
+          {
+            "id": "04dae5800df0b2ba",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              },
+              "icon": "lucide-search",
+              "title": "Search"
+            }
+          },
+          {
+            "id": "ffe8f34270b8e80f",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {},
+              "icon": "lucide-bookmark",
+              "title": "Bookmarks"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300
+  },
+  "right": {
+    "id": "dc33ba28412227d6",
+    "type": "split",
+    "children": [
+      {
+        "id": "e004b770531136d4",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "fceffe2dd0dae27e",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "books/the-warrior-s-apprentice-vorkosigan-saga-2.md",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-coming-in",
+              "title": "Backlinks for the-warrior-s-apprentice-vorkosigan-saga-2"
+            }
+          },
+          {
+            "id": "9073a3ccbdde35a7",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "file": "books/the-warrior-s-apprentice-vorkosigan-saga-2.md",
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-going-out",
+              "title": "Outgoing links from the-warrior-s-apprentice-vorkosigan-saga-2"
+            }
+          },
+          {
+            "id": "93efa7e160943596",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-tags",
+              "title": "Tags"
+            }
+          },
+          {
+            "id": "bd4567d992a82702",
+            "type": "leaf",
+            "state": {
+              "type": "all-properties",
+              "state": {
+                "sortOrder": "frequency",
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-archive",
+              "title": "All properties"
+            }
+          },
+          {
+            "id": "53462c1b15780676",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "books/the-warrior-s-apprentice-vorkosigan-saga-2.md",
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "Outline of the-warrior-s-apprentice-vorkosigan-saga-2"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:Open quick switcher": false,
+      "graph:Open graph view": false,
+      "canvas:Create new canvas": false,
+      "daily-notes:Open today's daily note": false,
+      "templates:Insert template": false,
+      "command-palette:Open command palette": false,
+      "bases:Create new base": false
+    }
+  },
+  "active": "a2e5c9984c241c15",
+  "lastOpenFiles": [
+    "Untitled 1.base",
+    "Untitled.base",
+    "books/blindsight-firefall-1.md",
+    "books/a-sense-of-where-you-are-bill-bradley-at-princeton.md",
+    "books/a-deepness-in-the-sky-zones-of-thought-2.md",
+    "books/small-things-like-these.md",
+    "books/the-warrior-s-apprentice-vorkosigan-saga-2.md",
+    "books/the-decagon-house-murders-house-murders-1.md",
+    "books/cetaganda-vorkosigan-saga-9.md"
+  ]
+}

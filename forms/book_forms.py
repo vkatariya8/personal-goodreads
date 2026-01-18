@@ -44,4 +44,5 @@ class BookForm(FlaskForm):
         ('5', '5 Stars'),
     ], validators=[Optional()])
     review_text = TextAreaField('Review', validators=[Optional()])
+    highlights = TextAreaField('Highlights (one per line)', validators=[Optional()])
     private_notes = TextAreaField('Private Notes', validators=[Optional()])

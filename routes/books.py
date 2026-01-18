@@ -2,6 +2,11 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash,
 from models import db, Book, ReadingRecord, Review, Shelf, BookShelf
 from forms.book_forms import BookForm
 from sqlalchemy import or_
+from services.markdown_sync_service import MarkdownSyncService
+import logging
+import json
+
+logger = logging.getLogger(__name__)
 
 bp = Blueprint('books', __name__, url_prefix='/books')
 
@@ -131,13 +136,33 @@ def add():
         )
         db.session.add(reading_record)
 
+        # Parse highlights from textarea (one per line)
+        highlights_text = form.highlights.data or ''
+        highlights_list = []
+        for line in highlights_text.split('\n'):
+            line = line.strip()
+            # Remove quotes if user manually added them
+            if line.startswith('"') and line.endswith('"'):
+                line = line[1:-1].strip()
+            if line:  # Only add non-empty highlights
+                highlights_list.append(line)
+
+        # Optional: Soft validation (warn if too many, but don't block)
+        MAX_HIGHLIGHTS = 20
+        if len(highlights_list) > MAX_HIGHLIGHTS:
+            flash(f'You added {len(highlights_list)} highlights. Consider keeping it to 3-5 for readability.', 'warning')
+
+        # Save as JSON (or None if empty)
+        highlights_json = json.dumps(highlights_list) if highlights_list else None
+
         rating = int(form.rating.data) if form.rating.data else None
-        if rating or form.review_text.data or form.private_notes.data:
+        if rating or form.review_text.data or form.private_notes.data or highlights_json:
             review = Review(
                 book_id=book.id,
                 rating=rating,
                 review_text=form.review_text.data or None,
                 private_notes=form.private_notes.data or None,
+                highlights=highlights_json,
             )
             db.session.add(review)
 
@@ -152,6 +177,14 @@ def add():
                 db.session.add(book_shelf)
 
         db.session.commit()
+
+        # Sync to markdown
+        try:
+            sync_service = MarkdownSyncService()
+            sync_service.sync_db_to_markdown(book.id)
+        except Exception as e:
+            logger.error(f"Failed to sync book {book.id} to markdown: {e}")
+
         flash(f'"{book.title}" has been added to your library.', 'success')
         return redirect(url_for('books.detail', book_id=book.id))
 
@@ -179,6 +212,13 @@ def edit(book_id):
             form.rating.data = str(book.review.rating) if book.review.rating else ''
             form.review_text.data = book.review.review_text
             form.private_notes.data = book.review.private_notes
+            # Load highlights into textarea
+            if book.review.highlights:
+                try:
+                    highlights_list = json.loads(book.review.highlights)
+                    form.highlights.data = '\n'.join(highlights_list)
+                except (json.JSONDecodeError, TypeError):
+                    form.highlights.data = ''
 
     if form.validate_on_submit():
         book.title = form.title.data
@@ -204,17 +244,38 @@ def edit(book_id):
             )
             db.session.add(reading_record)
 
+        # Parse highlights from textarea (one per line)
+        highlights_text = form.highlights.data or ''
+        highlights_list = []
+        for line in highlights_text.split('\n'):
+            line = line.strip()
+            # Remove quotes if user manually added them
+            if line.startswith('"') and line.endswith('"'):
+                line = line[1:-1].strip()
+            if line:  # Only add non-empty highlights
+                highlights_list.append(line)
+
+        # Optional: Soft validation (warn if too many, but don't block)
+        MAX_HIGHLIGHTS = 20
+        if len(highlights_list) > MAX_HIGHLIGHTS:
+            flash(f'You added {len(highlights_list)} highlights. Consider keeping it to 3-5 for readability.', 'warning')
+
+        # Save as JSON (or None if empty)
+        highlights_json = json.dumps(highlights_list) if highlights_list else None
+
         rating = int(form.rating.data) if form.rating.data else None
         if book.review:
             book.review.rating = rating
             book.review.review_text = form.review_text.data or None
             book.review.private_notes = form.private_notes.data or None
-        elif rating or form.review_text.data or form.private_notes.data:
+            book.review.highlights = highlights_json
+        elif rating or form.review_text.data or form.private_notes.data or highlights_json:
             review = Review(
                 book_id=book.id,
                 rating=rating,
                 review_text=form.review_text.data or None,
                 private_notes=form.private_notes.data or None,
+                highlights=highlights_json,
             )
             db.session.add(review)
 
@@ -230,6 +291,14 @@ def edit(book_id):
                 db.session.add(book_shelf)
 
         db.session.commit()
+
+        # Sync to markdown
+        try:
+            sync_service = MarkdownSyncService()
+            sync_service.sync_db_to_markdown(book.id)
+        except Exception as e:
+            logger.error(f"Failed to sync book {book.id} to markdown: {e}")
+
         flash(f'"{book.title}" has been updated.', 'success')
         return redirect(url_for('books.detail', book_id=book.id))
 
@@ -240,6 +309,18 @@ def edit(book_id):
 def delete(book_id):
     book = Book.query.get_or_404(book_id)
     title = book.title
+
+    # Delete markdown file
+    try:
+        sync_service = MarkdownSyncService()
+        filename = sync_service._generate_filename(title)
+        file_path = current_app.config['BOOKS_PATH'] / filename
+        if file_path.exists():
+            file_path.unlink()
+            logger.info(f"Deleted markdown file: {filename}")
+    except Exception as e:
+        logger.error(f"Failed to delete markdown file for {title}: {e}")
+
     db.session.delete(book)
     db.session.commit()
     flash(f'"{title}" has been deleted from your library.', 'success')

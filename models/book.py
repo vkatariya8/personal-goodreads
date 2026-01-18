@@ -29,6 +29,10 @@ class Book(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
+    # Markdown sync fields
+    last_synced_at = db.Column(db.DateTime, nullable=True)
+    sync_hash = db.Column(db.String(32), nullable=True)
+
     reading_record = db.relationship('ReadingRecord', backref='book', uselist=False, cascade='all, delete-orphan')
     review = db.relationship('Review', backref='book', uselist=False, cascade='all, delete-orphan')
     book_shelves = db.relationship('BookShelf', backref='book', cascade='all, delete-orphan')

@@ -138,6 +138,12 @@
                         </div>
 
                         <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{{ form.highlights.label.text }}</label>
+                            {{ form.highlights(class="w-full px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-colors duration-150", rows=5, placeholder="Enter highlights, one per line") }}
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Add key quotes or passages (one per line)</p>
+                        </div>
+
+                        <div>
                             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{{ form.private_notes.label.text }}</label>
                             {{ form.private_notes(class="w-full px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-colors duration-150", rows=3, placeholder="Personal notes (only visible to you)") }}
                         </div>

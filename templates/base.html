@@ -94,9 +94,11 @@
                     </a>
                     <div class="hidden md:flex space-x-1">
                         <a href="{{ url_for('books.library') }}" class="text-gray-300 hover:text-white hover:bg-gray-800 px-3 py-2 rounded-md text-sm font-medium transition-all duration-150">Library</a>
+                        <a href="{{ url_for('recommendations.index') }}" class="text-gray-300 hover:text-white hover:bg-gray-800 px-3 py-2 rounded-md text-sm font-medium transition-all duration-150">Recommendations</a>
                         <a href="{{ url_for('shelves.index') }}" class="text-gray-300 hover:text-white hover:bg-gray-800 px-3 py-2 rounded-md text-sm font-medium transition-all duration-150">Shelves</a>
                         <a href="{{ url_for('stats.index') }}" class="text-gray-300 hover:text-white hover:bg-gray-800 px-3 py-2 rounded-md text-sm font-medium transition-all duration-150">Statistics</a>
                         <a href="{{ url_for('import.index') }}" class="text-gray-300 hover:text-white hover:bg-gray-800 px-3 py-2 rounded-md text-sm font-medium transition-all duration-150">Import</a>
+                        <a href="{{ url_for('admin.sync_status') }}" class="text-gray-300 hover:text-white hover:bg-gray-800 px-3 py-2 rounded-md text-sm font-medium transition-all duration-150">Sync</a>
                     </div>
                 </div>
                 <div class="flex items-center space-x-4">

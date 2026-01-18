@@ -128,6 +128,23 @@
                     </div>
                     {% endif %}
 
+                    {% if book.review.highlights_list %}
+                    <div class="mt-4">
+                        <h4 class="font-semibold text-sm text-gray-900 dark:text-white mb-2">Highlights</h4>
+                        <div class="bg-amber-50 dark:bg-amber-900/20 border-l-4 border-amber-400 dark:border-amber-600 p-4 rounded">
+                            <ul class="space-y-3">
+                                {% for highlight in book.review.highlights_list %}
+                                <li class="text-gray-700 dark:text-gray-300 italic">
+                                    <span class="text-amber-600 dark:text-amber-400 mr-2 not-italic text-lg">"</span>
+                                    {{ highlight }}
+                                    <span class="text-amber-600 dark:text-amber-400 ml-1 not-italic text-lg">"</span>
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                    {% endif %}
+
                     {% if book.review.private_notes %}
                     <div class="mt-4">
                         <h4 class="font-semibold text-sm text-gray-600 dark:text-gray-400 mb-2">Private Notes</h4>

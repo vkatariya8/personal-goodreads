@@ -1,0 +1,220 @@
+{% extends "base.html" %}
+
+{% block title %}Sync Status - Admin{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold mb-2">Markdown Sync Status</h1>
+        <p class="text-gray-600 dark:text-gray-400">Monitor and manage synchronization between database and markdown files</p>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
+        <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
+            <div class="text-sm text-gray-600 dark:text-gray-400 mb-1">Database Books</div>
+            <div class="text-2xl font-bold">{{ stats.total_books }}</div>
+        </div>
+        <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
+            <div class="text-sm text-gray-600 dark:text-gray-400 mb-1">Markdown Files</div>
+            <div class="text-2xl font-bold">{{ stats.total_markdown }}</div>
+        </div>
+        <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
+            <div class="text-sm text-gray-600 dark:text-gray-400 mb-1">Synced</div>
+            <div class="text-2xl font-bold text-green-600 dark:text-green-400">{{ stats.synced_books }}</div>
+        </div>
+        <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
+            <div class="text-sm text-gray-600 dark:text-gray-400 mb-1">Conflicts</div>
+            <div class="text-2xl font-bold text-red-600 dark:text-red-400">{{ stats.total_conflicts }}</div>
+        </div>
+        <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
+            <div class="text-sm text-gray-600 dark:text-gray-400 mb-1">File Watcher</div>
+            <div class="text-sm font-semibold {% if stats.watcher_running %}text-green-600 dark:text-green-400{% else %}text-red-600 dark:text-red-400{% endif %}">
+                {% if stats.watcher_running %}● Running{% else %}○ Stopped{% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Actions Bar -->
+    <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow mb-8">
+        <div class="flex flex-wrap gap-3">
+            <form method="POST" action="{{ url_for('admin.sync_all') }}" class="inline">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="btn btn-primary">
+                    Sync All Books
+                </button>
+            </form>
+            <a href="{{ url_for('books.library') }}" class="btn btn-secondary">
+                Back to Library
+            </a>
+        </div>
+    </div>
+
+    <!-- Conflicts Section -->
+    {% if conflicts %}
+    <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-6 mb-8">
+        <h2 class="text-xl font-bold mb-4 text-red-800 dark:text-red-300">
+            ⚠️ Conflicts Detected ({{ conflicts|length }})
+        </h2>
+        <div class="space-y-3">
+            {% for conflict in conflicts %}
+            <div class="bg-white dark:bg-gray-800 p-4 rounded border border-red-300 dark:border-red-700">
+                <div class="flex justify-between items-start">
+                    <div class="flex-1">
+                        <div class="font-semibold mb-1">{{ conflict.title }}</div>
+                        <div class="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                            <span class="font-mono">{{ conflict.filename }}</span>
+                        </div>
+                        <div class="text-sm">
+                            {% if conflict.conflict_type == 'missing_markdown' %}
+                                <span class="text-red-600 dark:text-red-400">Missing markdown file</span>
+                                - Book exists in database but markdown file is missing
+                            {% elif conflict.conflict_type == 'orphaned_markdown' %}
+                                <span class="text-yellow-600 dark:text-yellow-400">Orphaned markdown</span>
+                                - Markdown file exists but no matching book in database
+                            {% elif conflict.conflict_type == 'hash_mismatch' %}
+                                <span class="text-orange-600 dark:text-orange-400">Content mismatch</span>
+                                - Database and markdown content differ
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="flex gap-2 ml-4">
+                        {% if conflict.conflict_type == 'missing_markdown' and conflict.book_id %}
+                            <form method="POST" action="{{ url_for('admin.sync_book', book_id=conflict.book_id) }}" class="inline">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <button type="submit" class="btn btn-sm btn-primary" title="Export to markdown">
+                                    Export →
+                                </button>
+                            </form>
+                        {% elif conflict.conflict_type == 'orphaned_markdown' %}
+                            <form method="POST" action="{{ url_for('admin.sync_from_markdown', filename=conflict.filename) }}" class="inline">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <button type="submit" class="btn btn-sm btn-primary" title="Import to database">
+                                    ← Import
+                                </button>
+                            </form>
+                            <form method="POST" action="{{ url_for('admin.delete_markdown', filename=conflict.filename) }}" class="inline" onsubmit="return confirm('Delete this markdown file?')">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <button type="submit" class="btn btn-sm btn-danger" title="Delete markdown file">
+                                    Delete
+                                </button>
+                            </form>
+                        {% elif conflict.conflict_type == 'hash_mismatch' and conflict.book_id %}
+                            <form method="POST" action="{{ url_for('admin.sync_book', book_id=conflict.book_id) }}" class="inline">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <button type="submit" class="btn btn-sm btn-secondary" title="Overwrite markdown with database">
+                                    DB → MD
+                                </button>
+                            </form>
+                            <form method="POST" action="{{ url_for('admin.sync_from_markdown', filename=conflict.filename) }}" class="inline">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <button type="submit" class="btn btn-sm btn-secondary" title="Overwrite database with markdown">
+                                    MD → DB
+                                </button>
+                            </form>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- All Books Table -->
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
+        <div class="p-4 border-b border-gray-200 dark:border-gray-700">
+            <h2 class="text-xl font-bold">All Books ({{ book_statuses|length }})</h2>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead class="bg-gray-50 dark:bg-gray-900">
+                    <tr>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Title</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Filename</th>
+                        <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">DB</th>
+                        <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">MD</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Last Synced</th>
+                        <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Status</th>
+                        <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                    {% for status in book_statuses %}
+                    <tr class="{% if status.has_conflict %}bg-red-50 dark:bg-red-900/10{% endif %}">
+                        <td class="px-4 py-3">
+                            {% if status.book_id %}
+                                <a href="{{ url_for('books.detail', book_id=status.book_id) }}" class="text-primary hover:underline">
+                                    {{ status.title }}
+                                </a>
+                            {% else %}
+                                {{ status.title }}
+                            {% endif %}
+                        </td>
+                        <td class="px-4 py-3">
+                            <code class="text-xs">{{ status.filename }}</code>
+                        </td>
+                        <td class="px-4 py-3 text-center">
+                            {% if status.db_exists %}
+                                <span class="text-green-600 dark:text-green-400">✓</span>
+                            {% else %}
+                                <span class="text-gray-400">—</span>
+                            {% endif %}
+                        </td>
+                        <td class="px-4 py-3 text-center">
+                            {% if status.md_exists %}
+                                <span class="text-green-600 dark:text-green-400">✓</span>
+                            {% else %}
+                                <span class="text-gray-400">—</span>
+                            {% endif %}
+                        </td>
+                        <td class="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
+                            {% if status.last_synced %}
+                                {{ status.last_synced.strftime('%Y-%m-%d %H:%M') }}
+                            {% else %}
+                                <span class="text-gray-400">Never</span>
+                            {% endif %}
+                        </td>
+                        <td class="px-4 py-3 text-center text-sm">
+                            {% if status.has_conflict %}
+                                <span class="text-red-600 dark:text-red-400 font-medium">Conflict</span>
+                            {% else %}
+                                <span class="text-green-600 dark:text-green-400">Synced</span>
+                            {% endif %}
+                        </td>
+                        <td class="px-4 py-3 text-center">
+                            {% if status.book_id %}
+                                <form method="POST" action="{{ url_for('admin.sync_book', book_id=status.book_id) }}" class="inline">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <button type="submit" class="text-sm text-primary hover:underline" title="Sync to markdown">
+                                        Sync →
+                                    </button>
+                                </form>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<style>
+.btn {
+    @apply px-4 py-2 rounded font-medium transition-colors;
+}
+.btn-primary {
+    @apply bg-primary text-white hover:bg-primary-dark;
+}
+.btn-secondary {
+    @apply bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600;
+}
+.btn-danger {
+    @apply bg-red-600 text-white hover:bg-red-700;
+}
+.btn-sm {
+    @apply px-3 py-1 text-sm;
+}
+</style>
+{% endblock %}

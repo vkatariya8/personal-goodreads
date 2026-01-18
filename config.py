@@ -28,3 +28,18 @@ class Config:
     ALLOWED_CSV_EXTENSIONS = {'csv'}
     COVER_DOWNLOAD_TIMEOUT = 10  # seconds
     OPEN_LIBRARY_COVER_URL = 'https://covers.openlibrary.org/b/isbn/{isbn}-L.jpg'
+
+    # Markdown library settings
+    LIBRARY_PATH = basedir / 'library'
+    BOOKS_PATH = LIBRARY_PATH / 'books'
+    ATTACHMENTS_PATH = LIBRARY_PATH / 'attachments'
+    SHELVES_PATH = LIBRARY_PATH / 'shelves'
+
+    # Sync behavior
+    ENABLE_FILE_WATCHER = True
+    FILE_WATCHER_DEBOUNCE_SECONDS = 2
+    MARKDOWN_FILENAME_MAX_LENGTH = 100
+
+    # Conflict resolution
+    CONFLICT_RESOLUTION_STRATEGY = 'markdown_wins'  # markdown_wins | keep_both
+    CREATE_CONFLICT_BACKUPS = True

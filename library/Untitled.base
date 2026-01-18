@@ -1,0 +1,15 @@
+views:
+  - type: table
+    name: Table
+    order:
+      - title
+      - status
+      - rating
+      - shelves
+      - date_finished
+      - author
+    sort:
+      - property: status
+        direction: ASC
+    columnSize:
+      note.title: 242
